@@ -1,0 +1,6 @@
+-- Group: contactmerge
+-- Name: deselect
+-- Notes: Removes contact selection
+
+DELETE FROM cntctsel
+WHERE (cntctsel_cntct_id=<? value("cntct_id") ?>);

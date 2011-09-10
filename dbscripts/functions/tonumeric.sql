@@ -1,0 +1,17 @@
+
+CREATE OR REPLACE FUNCTION toNumeric(TEXT, NUMERIC) RETURNS NUMERIC IMMUTABLE AS '
+DECLARE
+  pText ALIAS FOR $1;
+  pDefault ALIAS FOR $2;
+
+BEGIN
+
+  IF (isNumeric(pText)) THEN
+    RETURN TO_NUMBER(pText, ''999999999999'');
+  ELSE
+    RETURN pDefault;
+  END IF;
+
+END;
+' LANGUAGE plpgsql;
+

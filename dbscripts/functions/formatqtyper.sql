@@ -1,0 +1,4 @@
+CREATE OR REPLACE FUNCTION formatQtyPer(NUMERIC) RETURNS TEXT IMMUTABLE AS '
+BEGIN
+  RETURN formatNumeric($1, ''qtyper'');
+END;' LANGUAGE 'plpgsql';

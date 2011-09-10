@@ -1,0 +1,32 @@
+-- Group: itemSources
+-- Name: detail
+-- Notes: 
+
+SELECT itemsrc_id, 
+       vend_name, 
+       item_number,
+       (item_descrip1 || ' ' || item_descrip2) AS item_descrip,
+       uom_name,
+       itemsrc.*, 'qty' AS itemsrc_invvendoruomratio_xtnumericrole 
+FROM itemsrc JOIN vendinfo ON (vend_id=itemsrc_vend_id AND vend_active)
+             JOIN item ON (item_id=itemsrc_item_id)
+             JOIN uom ON (uom_id=item_inv_uom_id) 
+WHERE ((true)
+<? if exists("onlyShowActive") ?>
+  AND (itemsrc_active)
+<? endif ?>
+<? if exists("item_id") ?>
+  AND (itemsrc_item_id=<? value("item_id") ?>)
+<? endif ?>
+<? if exists("vend_id") ?>
+  AND (itemsrc_vend_id=<? value("vend_id") ?>)
+<? endif ?>
+)
+<? if exists("item_id") ?>
+ORDER BY itemsrc_ranking, vend_name,
+         itemsrc_vend_item_number, itemsrc_manuf_name,
+         itemsrc_manuf_item_number
+<? else ?>
+ORDER By item_number, vend_name
+<? endif ?>
+;

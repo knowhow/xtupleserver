@@ -1,0 +1,6 @@
+-- Group: updateprices
+-- Name: createselsched
+-- Notes:
+
+CREATE TEMPORARY TABLE selsched (
+  selsched_ipshead_id INTEGER PRIMARY KEY );

@@ -1,0 +1,36 @@
+-- Group: purchaseOrderItems
+-- Name: detail
+-- Notes: used by purchaseOrderItem
+
+SELECT pohead_number, pohead_taxzone_id,
+       pohead_curr_id, pohead_orderdate,
+       poitem.*, itemsrc.*,
+       COALESCE(poitem_itemsite_id, -1) AS poitem_itemsite_id,
+       COALESCE(poitem_itemsrc_id, -1) AS poitem_itemsrc_id,
+       COALESCE(poitem_expcat_id, -1) AS poitem_expcat_id,
+       COALESCE(pohead_cohead_id, -1) AS pohead_cohead_id,
+       COALESCE(poitem_wohead_id, -1) AS poitem_wohead_id,
+       CASE WHEN (COALESCE(pohead_cohead_id, -1) != -1) THEN TEXT(<? value("sonum") ?>)
+            WHEN (COALESCE(poitem_wohead_id, -1) != -1) THEN TEXT(<? value("wonum") ?>)
+            ELSE ''
+       END AS demand_type,
+       CASE WHEN (COALESCE(pohead_cohead_id, -1) != -1) THEN cohead_number
+            WHEN (COALESCE(poitem_wohead_id, -1) != -1) THEN CAST(wo_number AS text)
+            ELSE ''
+       END AS order_number,
+       CASE WHEN pohead_cohead_id IS NOT NULL THEN CAST(coitem_linenumber AS text)
+            WHEN poitem_wohead_id IS NOT NULL THEN CAST(wo_subnumber AS text)
+            ELSE ''
+       END AS orderline_number,
+       poitem_unitprice * poitem_qty_ordered AS extended_price,
+       COALESCE(coitem_prcost, 0.0) AS override_cost
+  FROM poitem JOIN pohead ON (pohead_id=poitem_pohead_id)
+              LEFT OUTER JOIN itemsrc ON (itemsrc_id=poitem_itemsrc_id)
+              LEFT OUTER JOIN coitem  ON (coitem_id=poitem_soitem_id)
+              LEFT OUTER JOIN cohead  ON (cohead_id=coitem_cohead_id)
+              LEFT OUTER JOIN wo      ON (wo_id=poitem_wohead_id)
+ WHERE ( (TRUE)
+<? if exists("poitem_id") ?>
+   AND (poitem_id=<? value("poitem_id") ?>)
+<? endif ?>
+);

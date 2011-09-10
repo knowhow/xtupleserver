@@ -1,0 +1,5 @@
+-- Group: contactmerge
+-- Name: selectcol
+-- Notes: Selects a specific column
+
+SELECT cntctselectcol(<? value("cntct_id") ?>, <? value("col_number") ?>);

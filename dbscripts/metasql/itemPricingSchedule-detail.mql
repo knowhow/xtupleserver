@@ -1,0 +1,85 @@
+-- Group: itemPricingSchedule
+-- Name: detail
+-- Notes: used by itemPricingSchedule
+
+SELECT ipsitem_id AS id, 1 AS altid, <? value("item") ?> AS type, item_number AS number,
+       (item_descrip1 || ' ' || item_descrip2) AS descrip,
+       qty.uom_name AS qtyuom, ipsitem_qtybreak AS qtybreak,
+       price.uom_name AS priceuom,
+       ((COALESCE(ipsitem_discntprcnt, 0.0) * 100) + ipsitem_price) AS price,
+       (COALESCE(ipsitem_fixedamtdiscount, 0.0) + 0.00) AS fixedAmtDiscount,
+       noNeg(CASE WHEN ((COALESCE(ipsitem_discntprcnt, 0.0)=0.0)
+                    AND (COALESCE(ipsitem_fixedamtdiscount, 0.0)=0.0))
+               THEN ipsitem_price
+               ELSE CASE WHEN ((COALESCE(ipsitem_discntprcnt, 0.0)=0.0)
+                           AND (COALESCE(ipsitem_fixedamtdiscount, 0.0)<>0.0))
+                 THEN (item_listprice - ipsitem_fixedamtdiscount)
+                 ELSE CASE WHEN ((COALESCE(ipsitem_discntprcnt, 0.0)<>0.0)
+                             AND (COALESCE(ipsitem_fixedamtdiscount, 0.0)=0.0))
+                   THEN ROUND((item_listprice - (item_listprice * ipsitem_discntprcnt)),4)
+                   ELSE ROUND((item_listprice - (item_listprice * ipsitem_discntprcnt)
+                               - ipsitem_fixedamtdiscount), 4)
+                 END
+               END
+             END) AS discounted_prc,
+       CASE WHEN ((COALESCE(ipsitem_discntprcnt, 0.0)=0.0)
+              AND (COALESCE(ipsitem_fixedamtdiscount, 0.0)=0.0))
+         THEN 'Price'
+         ELSE CASE WHEN ((COALESCE(ipsitem_discntprcnt, 0.0)=0.0)
+                     AND (COALESCE(ipsitem_fixedamtdiscount, 0.0)<>0.0))
+           THEN 'Fixed'
+           ELSE CASE WHEN ((COALESCE(ipsitem_discntprcnt, 0.0)<>0.0)
+                       AND (COALESCE(ipsitem_fixedamtdiscount, 0.0)=0.0))
+             THEN 'Percent'
+             ELSE 'Mixed'
+           END
+         END
+       END AS method,
+       'qty' AS qtybreak_xtnumericrole,
+       'salesprice' AS price_xtnumericrole
+FROM ipsiteminfo, item, uom AS qty, uom AS price
+WHERE ( (ipsitem_item_id=item_id)
+   AND  (ipsitem_qty_uom_id=qty.uom_id)
+   AND  (ipsitem_price_uom_id=price.uom_id)
+   AND  (ipsitem_ipshead_id=<? value("ipshead_id") ?>) )
+
+UNION
+
+SELECT ipsprodcat_id AS id, 2 AS altid,
+       <? value("prodcat") ?> AS type,
+       prodcat_code AS number,
+       prodcat_descrip AS descrip,
+       '' AS qtyuom,
+       ipsprodcat_qtybreak AS qtybreak,
+       '' AS priceuom,
+       ipsprodcat_discntprcnt AS price,
+       ipsprodcat_fixedamtdiscount AS fixedAmtDiscount,
+       NULL AS discounted_prc,
+       NULL AS method,
+       'qty' AS qtybreak_xtnumericrole,
+       'percent' AS price_xtnumericrole
+FROM ipsprodcat, prodcat
+WHERE ( (ipsprodcat_prodcat_id=prodcat_id)
+   AND  (ipsprodcat_ipshead_id=<? value("ipshead_id") ?>) )
+
+UNION
+
+SELECT ipsfreight_id AS id, 3 AS altid, <? value("freight") ?> AS type,
+       CASE WHEN (ipsfreight_type='F') THEN <? value("flatrate") ?>
+         ELSE <? value("peruom") ?>
+       END AS number,
+       ('From ' || COALESCE(warehous_code, 'All Sites') || ' To ' ||
+         COALESCE(shipzone_name, 'All Shipping Zones')) AS descrip,
+       CASE WHEN (ipsfreight_type='P') THEN uom_name END AS qtyuom,
+       CASE WHEN (ipsfreight_type='P') THEN ipsfreight_qtybreak END AS qtybreak,
+       uom_name AS priceuom, ipsfreight_price AS price,
+       0.00 AS fixedAmtDiscount,
+       NULL AS discounted_prc,
+       NULL AS method,
+       'qty' AS qtybreak_xtnumericrole,
+       'curr' AS price_xtnumericrole
+FROM ipsfreight LEFT OUTER JOIN uom ON (uom_item_weight)
+                LEFT OUTER JOIN whsinfo ON (warehous_id=ipsfreight_warehous_id)
+                LEFT OUTER JOIN shipzone ON (shipzone_id=ipsfreight_shipzone_id)
+WHERE ( (ipsfreight_ipshead_id=<? value("ipshead_id") ?>) )
+ORDER BY altid, number, qtybreak;

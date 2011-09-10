@@ -1,0 +1,13 @@
+CREATE OR REPLACE FUNCTION shipments(TEXT) RETURNS BOOLEAN AS '
+DECLARE
+  pTransType ALIAS FOR $1;
+
+BEGIN
+  IF (pTransType IN (''SC'', ''SV'', ''SH'', ''RS'', ''TS'')) THEN
+    RETURN TRUE;
+  ELSE
+    RETURN FALSE;
+  END IF;
+
+END;
+' LANGUAGE 'plpgsql';

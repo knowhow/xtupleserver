@@ -1,0 +1,11 @@
+CREATE OR REPLACE FUNCTION _reportTrigger () RETURNS TRIGGER AS '
+BEGIN
+
+  NEW.report_loaddate = CURRENT_TIMESTAMP;
+  RETURN NEW;
+
+END;
+' LANGUAGE 'plpgsql';
+
+DROP TRIGGER reportTrigger ON report;
+CREATE TRIGGER reportTrigger BEFORE INSERT OR UPDATE ON report FOR EACH ROW EXECUTE PROCEDURE _reportTrigger();

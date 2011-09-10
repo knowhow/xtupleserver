@@ -1,0 +1,64 @@
+-- Group: vendors
+-- Name:  detail
+-- Notes: 
+
+SELECT 
+  vend_id, vend_vendtype_id, 
+  vend_active, vend_number, vend_name,
+  vendtype_code,
+  cntct.*, addr.*
+FROM vendinfo 
+  JOIN vendtype ON (vend_vendtype_id=vendtype_id)
+  LEFT OUTER JOIN cntct ON (vend_cntct1_id=cntct_id) 
+  LEFT OUTER JOIN addr ON (cntct_addr_id=addr_id) 
+WHERE true
+<? if not exists("showInactive") ?> 
+  AND vend_active 
+<? endif ?>
+<? if exists("search_pattern") ?>
+  AND ((vend_number ~* <? value("search_pattern") ?>)
+       OR (vend_name ~* <? value("search_pattern") ?>)
+       OR (vendtype_code ~* <? value("search_pattern") ?>)
+       OR (cntct_first_name || ' ' || cntct_last_name ~* <? value("search_pattern") ?>)
+       OR (cntct_phone || ' ' || cntct_phone2 || ' ' || cntct_fax ~* <? value("search_pattern") ?>)
+       OR (cntct_email ~* <? value("search_pattern") ?>)
+       OR (addr_line1 || ' ' || addr_line2 || ' ' || addr_line3 ~* <? value("search_pattern") ?>)
+       OR (addr_city ~* <? value("search_pattern") ?>)
+       OR (addr_state ~* <? value("search_pattern") ?>)
+       OR (addr_postalcode ~* <? value("search_pattern") ?>)
+       OR (addr_country ~* <? value("search_pattern") ?>))
+<? endif ?>
+<? if exists("vend_number_pattern") ?>
+  AND (vend_number ~* <? value("vend_number_pattern") ?>)
+<? endif ?>
+<? if exists("vend_name_pattern") ?>
+  AND (vend_name ~* <? value("vend_name_pattern") ?>)
+<? endif ?>
+<? if exists("vendtype_code_pattern") ?>
+  AND (vendtype_code ~* <? value("vendtype_code_pattern") ?>)
+<? endif ?>
+<? if exists("cntct_name_pattern") ?>
+  AND (cntct_first_name || ' ' || cntct_last_name ~* <? value("cntct_name_pattern") ?>)
+<? endif ?>
+<? if exists("cntct_phone_pattern") ?>
+  AND (cntct_phone || ' ' || cntct_phone2 || ' ' || cntct_fax ~* <? value("cntct_phone_pattern") ?>)
+<? endif ?>
+<? if exists("cntct_email_pattern") ?>
+  AND (cntct_email ~* <? value("cntct_email_pattern") ?>)
+<? endif ?>
+<? if exists("addr_street_pattern") ?>
+  AND (addr_line1 || ' ' || addr_line2 || ' ' || addr_line3 ~* <? value("addr_street_pattern") ?>)
+<? endif ?>
+<? if exists("addr_city_pattern") ?>
+  AND (addr_city ~* <? value("addr_city_pattern") ?>)
+<? endif ?>
+<? if exists("addr_state_pattern") ?>
+  AND (addr_state ~* <? value("addr_state_pattern") ?>)
+<? endif ?>
+<? if exists("addr_postalcode_pattern") ?>
+  AND (addr_postalcode ~* <? value("addr_postalcode_pattern") ?>)
+<? endif ?>
+<? if exists("addr_country_pattern") ?>
+  AND (addr_country ~* <? value("addr_country_pattern") ?>)
+<? endif ?>
+ORDER BY vend_number; 

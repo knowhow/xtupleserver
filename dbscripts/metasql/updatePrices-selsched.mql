@@ -1,0 +1,8 @@
+-- Group: updateprices
+-- Name: selsched
+-- Notes:
+
+SELECT selsched_ipshead_id, ipshead_name, ipshead_descrip
+FROM selsched
+ JOIN ipshead ON (selsched_ipshead_id=ipshead_id)
+ORDER BY ipshead_name

@@ -1,0 +1,5 @@
+-- Group: contactmerge
+-- Name: delete
+-- Notes: Delete a contact
+
+SELECT deleteContact(<? value("cntct_id") ?>) AS result;

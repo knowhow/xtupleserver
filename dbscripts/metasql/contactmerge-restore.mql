@@ -1,0 +1,10 @@
+-- Group: contactmerge
+-- Name: restore
+-- Notes: Restore a contact that was previously merged
+
+SELECT cntctrestore(cntctmrgd_cntct_id) AS result
+FROM cntctmrgd
+<? if exists("cntct_id") ?>
+WHERE (cntctmrgd_cntct_id=<? value("cntct_id") ?>)
+<? endif ?>
+;

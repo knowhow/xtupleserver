@@ -1,0 +1,11 @@
+-- Group: contactmerge
+-- Name: merge
+-- Notes: Merge contact selections
+
+SELECT cntctmerge(
+  src.cntctsel_cntct_id, 
+  trgt.cntctsel_cntct_id,
+  <? value("purge") ?>::boolean) AS result
+FROM cntctsel src, cntctsel trgt
+WHERE ((trgt.cntctsel_target)
+AND (NOT src.cntctsel_target));

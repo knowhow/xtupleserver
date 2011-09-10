@@ -1,0 +1,45 @@
+-- Group: customer
+-- Name: detail
+-- Notes: used by dspCustomersByCharacteristic, dspCustomersByCustomerType
+
+<? if exists("hasCharacteristic") ?>
+  SELECT cust_id, charass_id, cust_active,
+         cust_number, cust_name, char_name, charass_value
+  FROM cust, charass, char
+  WHERE ((charass_target_type='C')
+     AND (charass_target_id=cust_id)
+     AND (charass_char_id=char_id)
+     AND (char_id=<? value("char_id") ?>)
+   <? if exists("emptyValue") ?>
+     AND (charass_value IS NULL OR LENGTH(TRIM(charass_value)) = 0)
+   <? else ?>
+     AND (charass_value ~* <? value("value") ?>)
+   <? endif ?>
+<? elseif exists("byCustType") ?>
+  SELECT cust_id, cust_custtype_id,custtype_code,
+         cust_active, cust_number, cust_name, cust_address1
+  FROM cust, custtype
+  WHERE ((cust_custtype_id=custtype_id)
+   <? if exists("custtype_id") ?>
+     AND (custtype_id=<? value("custtype_id") ?>)
+   <? elseif exists("custtype_pattern") ?>
+     AND (custtype_code ~ <? value("custtype_pattern") ?>)
+   <? endif ?>
+<? else ?>
+  SELECT cust_id, -1, cust_active,
+         cust_number, cust_name, char_name, '' AS charass_value
+  FROM cust, char
+  WHERE ((cust_id NOT IN (SELECT charass_target_id
+                          FROM charass
+                          WHERE ((charass_target_type='C')
+                             AND (charass_char_id=char_id))
+                         )
+         )
+     AND (char_id=<? value("char_id") ?>)
+<? endif ?>
+
+<? if not exists("showInactive") ?>
+    AND (cust_active)
+<? endif ?>
+        )
+ORDER BY cust_number;

@@ -1,0 +1,4 @@
+CREATE OR REPLACE FUNCTION formatMoney(NUMERIC) RETURNS TEXT IMMUTABLE AS '
+BEGIN
+  RETURN formatNumeric($1, ''curr'');
+END;' LANGUAGE 'plpgsql';

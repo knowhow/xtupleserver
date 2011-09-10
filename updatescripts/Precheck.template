@@ -1,0 +1,4 @@
+ <prerequisite type="Query" name="Check for some condition" >
+  <query>Query that returns true if passed, false if failed</query>
+  <message>A more verbose message to show the user if the check fails. Both this message and the Check for some condition message should make sense to the end-user.</message>
+ </prerequisite>

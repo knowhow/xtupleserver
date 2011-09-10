@@ -1,0 +1,194 @@
+-- Group: pricelist
+-- Name:  detail
+-- Notes: This query displays price lists and the data used to perform
+--        price calculations. It avoids price calculations where possible.
+--        The UNION sets the sourcecode column to show how the price list entry
+--        was derived:  customer vs customer type vs customer type regex ..., etc.
+--        Then the outer query modifies the sourcecode to indicate
+--        item vs product category.
+--        TODO: possible improvements include removing OUTER JOINs with uom table
+SELECT sourcecode + CASE WHEN ipsprice_source='P' THEN 10 ELSE 0 END AS source,
+       sourceid, schedulename, type,
+       invqty AS qty_break,
+       CASE WHEN (qtybreak = -1) THEN <? value('na') ?>
+       END             AS qty_break_qtdisplayrole,
+       invuom.uom_name AS qty_uom,
+       price,
+       currConcat(curr_id) AS currency,
+       priceuom.uom_name   AS price_uom,
+       currToCurr(curr_id, <? value('curr_id') ?>,
+                  price,   <? value('effective') ?>) AS base_price,
+       discountpercent,
+       discountfixed,
+       'qty'        AS qty_break_xtnumericrole,
+       'salesprice' AS price_xtnumericrole,
+       'salesprice' AS base_price_xtnumericrole,
+       'percent'    AS discountpercent_xtnumericrole,
+       'salesprice' AS discountfixed_xtnumericrole
+FROM ( SELECT 1 AS sourcecode,
+              ipsprice_id AS sourceid,
+              ipsprice_source,
+              ipshead_id,
+              ipshead_name AS schedulename,
+              <? value('customer') ?> AS type,
+              ipsprice_qtybreak AS invqty,
+              ipsprice_uomqtybreak AS qtybreak,
+              ipsprice_uomprice AS price,
+              ipsprice_uomqtybreak_uom_id AS qtybreak_uom_id,
+              ipsprice_uomprice_uom_id AS price_uom_id,
+              ipsprice_discountpercent AS discountpercent,
+              ipsprice_discountfixed AS discountfixed,
+              ipshead_curr_id AS curr_id
+       FROM ipsass, ipshead, ipsprice
+       WHERE ((ipsass_ipshead_id=ipshead_id)
+          AND (ipsprice_ipshead_id=ipshead_id)
+          AND (ipsprice_item_id=<? value('item_id') ?>)
+          AND (ipsass_cust_id=<? value('cust_id') ?>)
+          AND (COALESCE(LENGTH(ipsass_shipto_pattern), 0) = 0)
+          AND (<? value('asof') ?> BETWEEN ipshead_effective AND
+                                           (ipshead_expires - 1))
+          )
+
+       UNION SELECT 2 AS sourcecode,
+                    ipsprice_id AS sourceid,
+                    ipsprice_source,
+                    ipshead_id,
+                    ipshead_name AS schedulename,
+                    <? value('custType') ?> AS type,
+                    ipsprice_qtybreak AS invqty,
+                    ipsprice_uomqtybreak AS qtybreak,
+                    ipsprice_uomprice AS price,
+                    ipsprice_uomqtybreak_uom_id AS qtybreak_uom_id,
+                    ipsprice_uomprice_uom_id AS price_uom_id,
+                    ipsprice_discountpercent AS discountpercent,
+                    ipsprice_discountfixed AS discountfixed,
+                    ipshead_curr_id AS curr_id
+       FROM ipsass, ipshead, cust, ipsprice
+       WHERE ((ipsass_ipshead_id=ipshead_id)
+          AND (ipsprice_ipshead_id=ipshead_id)
+          AND (ipsprice_item_id=<? value('item_id') ?>)
+          AND (ipsass_custtype_id=cust_custtype_id)
+          AND (cust_id=<? value('cust_id') ?>)
+          AND (<? value('asof') ?> BETWEEN ipshead_effective AND
+                                           (ipshead_expires - 1))
+          )
+
+       UNION SELECT 3 AS sourcecode,
+                    ipsprice_id AS sourceid,
+                    ipsprice_source,
+                    ipshead_id,
+                    ipshead_name AS schedulename,
+                    <? value('custTypePattern') ?> AS type,
+                    ipsprice_qtybreak AS invqty,
+                    ipsprice_uomqtybreak AS qtybreak,
+                    ipsprice_uomprice AS price,
+                    ipsprice_uomqtybreak_uom_id AS qtybreak_uom_id,
+                    ipsprice_uomprice_uom_id AS price_uom_id,
+                    ipsprice_discountpercent AS discountpercent,
+                    ipsprice_discountfixed AS discountfixed,
+                    ipshead_curr_id AS curr_id
+       FROM ipsass, ipshead, custtype, cust, ipsprice
+       WHERE ((ipsass_ipshead_id=ipshead_id)
+          AND (ipsprice_ipshead_id=ipshead_id)
+          AND (ipsprice_item_id=<? value('item_id') ?>)
+          AND (coalesce(length(ipsass_custtype_pattern), 0) > 0)
+          AND (custtype_code ~ ipsass_custtype_pattern)
+          AND (cust_custtype_id=custtype_id)
+          AND (cust_id=<? value('cust_id') ?>)
+          AND (<? value('asof') ?> BETWEEN ipshead_effective AND
+                                           (ipshead_expires - 1))
+          )
+
+       UNION SELECT 6 AS sourcecode,
+                    ipsprice_id AS sourceid,
+                    ipsprice_source,
+                    ipshead_id,
+                    ipshead_name AS schedulename,
+                    <? value('shipTo') ?> AS type,
+                    ipsprice_qtybreak AS invqty,
+                    ipsprice_uomqtybreak AS qtybreak,
+                    ipsprice_uomprice AS price,
+                    ipsprice_uomqtybreak_uom_id AS qtybreak_uom_id,
+                    ipsprice_uomprice_uom_id AS price_uom_id,
+                    ipsprice_discountpercent AS discountpercent,
+                    ipsprice_discountfixed AS discountfixed,
+                    ipshead_curr_id AS curr_id
+       FROM ipsass, ipshead, ipsprice
+       WHERE ((ipsass_ipshead_id=ipshead_id)
+          AND (ipsprice_ipshead_id=ipshead_id)
+          AND (ipsprice_item_id=<? value('item_id') ?>)
+          AND (ipsass_shipto_id=<? value('shipto_id') ?>)
+          AND (ipsass_shipto_id != -1)
+          AND (<? value('asof') ?> BETWEEN ipshead_effective AND
+                                           (ipshead_expires - 1))
+          )
+
+       UNION SELECT 7 AS sourcecode,
+                    ipsprice_id AS sourceid,
+                    ipsprice_source,
+                    ipshead_id,
+                    ipshead_name AS schedulename,
+                    <? value('shipToPattern') ?> AS type,
+                    ipsprice_qtybreak AS invqty,
+                    ipsprice_uomqtybreak AS qtybreak,
+                    ipsprice_uomprice AS price,
+                    ipsprice_uomqtybreak_uom_id AS qtybreak_uom_id,
+                    ipsprice_uomprice_uom_id AS price_uom_id,
+                    ipsprice_discountpercent AS discountpercent,
+                    ipsprice_discountfixed AS discountfixed,
+                    ipshead_curr_id AS curr_id
+       FROM ipsass, ipshead, shipto, ipsprice
+       WHERE ( (ipsass_ipshead_id=ipshead_id)
+        AND (ipsprice_ipshead_id=ipshead_id)
+        AND (ipsprice_item_id=<? value('item_id') ?>)
+        AND (shipto_id=<? value('shipto_id') ?>)
+        AND (COALESCE(LENGTH(ipsass_shipto_pattern), 0) > 0)
+        AND (shipto_num ~ ipsass_shipto_pattern)
+        AND (ipsass_cust_id=<? value('cust_id') ?>)
+        AND (<? value('asof') ?> BETWEEN ipshead_effective AND
+                                         (ipshead_expires - 1))
+        )
+
+       UNION SELECT 4 AS sourcecode,
+                    ipsprice_id AS sourceid,
+                    ipsprice_source,
+                    ipshead_id,
+                    ipshead_name AS schedulename,
+                    (<? value('sale') ?> || '-' || sale_name) AS type,
+                    ipsprice_qtybreak AS invqty,
+                    ipsprice_uomqtybreak AS qtybreak,
+                    ipsprice_uomprice AS price,
+                    ipsprice_uomqtybreak_uom_id AS qtybreak_uom_id,
+                    ipsprice_uomprice_uom_id AS price_uom_id,
+                    ipsprice_discountpercent AS discountpercent,
+                    ipsprice_discountfixed AS discountfixed,
+                    ipshead_curr_id AS curr_id
+       FROM sale, ipshead, ipsprice
+       WHERE ((sale_ipshead_id=ipshead_id)
+          AND (ipsprice_ipshead_id=ipshead_id)
+          AND (ipsprice_item_id=<? value('item_id') ?>)
+          AND (<? value('asof') ?> BETWEEN sale_startdate AND (sale_enddate - 1)) )
+
+       UNION SELECT 5 AS sourcecode,
+               item_id AS sourceid,
+               NULL AS ipsprice_source,
+               NULL AS ipshead_id,
+               '' AS schedulename,
+               <? value('listPrice') ?> AS type,
+               -1 AS invqty,
+               -1 AS qtybreak,
+              (item_listprice - (item_listprice * cust_discntprcnt)) AS price,
+              item_inv_uom_id   AS qtybreak_uom_id,
+              item_price_uom_id AS price_uom_id,
+              cust_discntprcnt  AS discountpercent,
+              NULL              AS discountfixed,
+              baseCurrId() AS curr_id
+       FROM item, cust
+       WHERE (item_sold
+          AND (NOT item_exclusive)
+          AND (item_id=<? value('item_id') ?>)
+          AND (cust_id=<? value('cust_id') ?>) ) ) AS data
+  LEFT OUTER JOIN uom AS invuom ON (invuom.uom_id=qtybreak_uom_id)
+  LEFT OUTER JOIN uom AS priceuom ON (priceuom.uom_id=price_uom_id)
+
+ ORDER BY price_uom_id, price;

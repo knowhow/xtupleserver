@@ -1,0 +1,10 @@
+CREATE OR REPLACE FUNCTION deleteUOMConv(INTEGER) RETURNS INTEGER AS '
+DECLARE
+  pUomconvid ALIAS FOR $1;
+
+BEGIN
+  DELETE FROM uomconv WHERE uomconv_id=pUomconvid;
+
+  RETURN 0;
+END;
+' LANGUAGE 'plpgsql';

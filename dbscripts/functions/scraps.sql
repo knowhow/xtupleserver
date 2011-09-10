@@ -1,0 +1,13 @@
+CREATE OR REPLACE FUNCTION scraps(TEXT) RETURNS BOOLEAN AS '
+DECLARE
+  pTransType ALIAS FOR $1;
+
+BEGIN
+  IF (pTransType IN (''SI'', ''SM'', ''EX'')) THEN
+    RETURN TRUE;
+  ELSE
+    RETURN FALSE;
+  END IF;
+
+END;
+' LANGUAGE 'plpgsql';

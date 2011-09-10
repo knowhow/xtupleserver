@@ -1,0 +1,21 @@
+-- Group: costelem
+-- Name:  unusedbyitem
+-- Notes: list the cost elements that can be applied to an item that have
+--        not already been applied to that item. takes an item_id and type.
+
+SELECT costelem_id, costelem_type
+FROM costelem
+WHERE ((costelem_active)
+   AND (NOT costelem_sys
+        OR (CASE WHEN fetchMetricBool('Routings') AND
+                     (<? value("itemtype") ?> IN ('M', 'F', 'B', 'C', 'T')) THEN
+               costelem_type IN ('Direct Labor', 'Overhead', 'Machine Overhead')
+                 WHEN (<? value("itemtype") ?> IN ('O', 'P')) THEN
+                                                   costelem_type IN ('Material')
+            END))
+   AND (costelem_id NOT IN (SELECT itemcost_costelem_id
+                            FROM itemcost
+                            WHERE ((NOT itemcost_lowlevel)
+                               AND (itemcost_item_id=<? value("item_id") ?>))))
+      )
+ORDER BY costelem_type;

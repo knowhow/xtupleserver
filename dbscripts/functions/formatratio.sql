@@ -1,0 +1,4 @@
+CREATE OR REPLACE FUNCTION formatRatio(NUMERIC) RETURNS TEXT IMMUTABLE AS '
+  SELECT formatNumeric($1, ''uomratio'');
+' LANGUAGE 'sql';
+

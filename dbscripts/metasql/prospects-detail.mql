@@ -1,0 +1,64 @@
+-- Group: prospects
+-- Name:  detail
+-- Notes: 
+SELECT 
+  prospect.*,
+  cntct.*, addr.*
+FROM prospect 
+  LEFT OUTER JOIN cntct ON (prospect_cntct_id=cntct_id) 
+  LEFT OUTER JOIN addr ON (cntct_addr_id=addr_id) 
+WHERE true
+<? if not exists("showInactive") ?> 
+  AND prospect_active 
+<? endif ?>
+<? if exists("owner_username") ?> 
+  AND (prospect_owner_username=<? value("owner_username") ?>) 
+<? elseif exists("owner_usr_pattern") ?>
+  AND (prospect_owner_username ~ <? value("owner_usr_pattern") ?>) 
+<? endif ?>
+<? if exists("search_pattern") ?>
+  AND ((prospect_number ~* <? value("search_pattern") ?>)
+       OR (prospect_name ~* <? value("search_pattern") ?>)
+       OR (cntct_first_name || ' ' || cntct_last_name ~* <? value("search_pattern") ?>)
+       OR (cntct_phone || ' ' || cntct_phone2 || ' ' || cntct_fax ~* <? value("search_pattern") ?>)
+       OR (cntct_email ~* <? value("search_pattern") ?>)
+       OR (addr_line1 || ' ' || addr_line2 || ' ' || addr_line3 ~* <? value("search_pattern") ?>)
+       OR (addr_city ~* <? value("search_pattern") ?>)
+       OR (addr_state ~* <? value("search_pattern") ?>)
+       OR (addr_postalcode ~* <? value("search_pattern") ?>)
+       OR (addr_country ~* <? value("search_pattern") ?>))
+<? endif ?>
+<? if exists("prospect_number_pattern") ?>
+  AND (prospect_number ~* <? value("prospect_number_pattern") ?>)
+<? endif ?>
+<? if exists("prospect_name_pattern") ?>
+  AND (prospect_name ~* <? value("prospect_name_pattern") ?>)
+<? endif ?>
+<? if exists("cntct_name_pattern") ?>
+  AND (cntct_first_name || ' ' || cntct_last_name ~* <? value("cntct_name_pattern") ?>)
+<? endif ?>
+<? if exists("cntct_phone_pattern") ?>
+  AND (cntct_phone || ' ' || cntct_phone2 || ' ' || cntct_fax ~* <? value("cntct_phone_pattern") ?>)
+<? endif ?>
+<? if exists("cntct_email_pattern") ?>
+  AND (cntct_email ~* <? value("cntct_email_pattern") ?>)
+<? endif ?>
+<? if exists("addr_street_pattern") ?>
+  AND (addr_line1 || ' ' || addr_line2 || ' ' || addr_line3 ~* <? value("addr_street_pattern") ?>)
+<? endif ?>
+<? if exists("addr_city_pattern") ?>
+  AND (addr_city ~* <? value("addr_city_pattern") ?>)
+<? endif ?>
+<? if exists("addr_state_pattern") ?>
+  AND (addr_state ~* <? value("addr_state_pattern") ?>)
+<? endif ?>
+<? if exists("addr_postalcode_pattern") ?>
+  AND (addr_postalcode ~* <? value("addr_postalcode_pattern") ?>)
+<? endif ?>
+<? if exists("addr_country_pattern") ?>
+  AND (addr_country ~* <? value("addr_country_pattern") ?>)
+<? endif ?>
+<? if exists("id") ?>
+  AND (prospect_id=<? value("id") ?>
+<? endif ?>
+ORDER BY prospect_number; 

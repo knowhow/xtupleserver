@@ -1,0 +1,5 @@
+CREATE OR REPLACE FUNCTION formatCost(NUMERIC) RETURNS TEXT IMMUTABLE AS '
+BEGIN
+  RETURN formatNumeric($1, ''cost'');
+END;'
+LANGUAGE 'plpgsql';

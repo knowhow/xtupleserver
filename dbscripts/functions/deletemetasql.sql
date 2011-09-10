@@ -1,0 +1,8 @@
+CREATE OR REPLACE FUNCTION deleteMetaSQL(INTEGER) RETURNS INTEGER AS $$
+DECLARE
+  pid ALIAS FOR $1;
+BEGIN
+  DELETE FROM metasql WHERE metasql_id = pid;
+  RETURN 0;
+END;
+$$ LANGUAGE 'plpgsql';

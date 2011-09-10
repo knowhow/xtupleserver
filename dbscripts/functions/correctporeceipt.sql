@@ -1,0 +1,17 @@
+CREATE OR REPLACE FUNCTION correctPoReceipt(INTEGER, NUMERIC, NUMERIC, INTEGER) RETURNS INTEGER AS '
+DECLARE
+  pPorecvid ALIAS FOR $1;
+  pQty ALIAS FOR $2;
+  pFreight ALIAS FOR $3;
+  pItemlocSeries ALIAS FOR $4;
+
+BEGIN
+  RETURN correctReceipt(''PO'', $1, $2, $3, $4, NULL, NULL);
+END;
+' LANGUAGE 'plpgsql';
+
+CREATE OR REPLACE FUNCTION correctPoReceipt(INTEGER, NUMERIC, NUMERIC, INTEGER, INTEGER, DATE) RETURNS INTEGER AS '
+BEGIN
+  RETURN correctReceipt(''PO'', $1, $2, $3, $4, $5, $6);
+END;
+' LANGUAGE 'plpgsql';

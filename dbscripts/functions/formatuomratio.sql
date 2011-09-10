@@ -1,0 +1,4 @@
+CREATE OR REPLACE FUNCTION formatUOMRatio(NUMERIC) RETURNS TEXT IMMUTABLE AS '
+BEGIN
+  RETURN formatNumeric($1, ''uomratio'');
+END;' LANGUAGE 'plpgsql';

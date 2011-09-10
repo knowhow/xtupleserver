@@ -1,0 +1,9 @@
+-- Group: updateprices
+-- Name: remove
+-- Notes:
+
+DELETE FROM selsched
+<? if exists("ipshead_id") ?>
+WHERE (selsched_ipshead_id=<? value("ipshead_id") ?>)
+<? endif ?>
+;

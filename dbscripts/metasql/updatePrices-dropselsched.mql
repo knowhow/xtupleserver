@@ -1,0 +1,5 @@
+-- Group: updateprices
+-- Name: dropselsched
+-- Notes:
+
+DROP TABLE selsched;

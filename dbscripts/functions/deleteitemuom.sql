@@ -1,0 +1,10 @@
+CREATE OR REPLACE FUNCTION deleteItemUOM(INTEGER) RETURNS INTEGER AS '
+DECLARE
+  pItemuomid ALIAS FOR $1;
+
+BEGIN
+  DELETE FROM itemuom WHERE itemuom_id=pItemuomid;
+
+  RETURN 0;
+END;
+' LANGUAGE 'plpgsql';

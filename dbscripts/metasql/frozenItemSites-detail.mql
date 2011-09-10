@@ -1,0 +1,19 @@
+-- Group: frozenItemSites
+-- Name: detail
+-- Notes: used by dspFrozenItemSites
+
+SELECT itemsite_id, warehous_code, item_number,
+        (item_descrip1 || ' ' || item_descrip2) AS descrip,
+        COALESCE((SELECT invcnt_tagnumber
+                  FROM invcnt
+                  WHERE ((NOT invcnt_posted)
+                          AND (invcnt_itemsite_id=itemsite_id)) LIMIT 1), '') AS cnttag
+FROM itemsite, item, warehous
+WHERE ( (itemsite_item_id=item_id)
+    AND (itemsite_warehous_id=warehous_id)
+    AND (itemsite_freeze)
+<? if exists("warehous_id") ?>
+    AND (itemsite_warehous_id=<? value("warehous_id") ?>)
+<? endif ?>
+      )
+ORDER BY warehous_code, item_number;

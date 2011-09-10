@@ -1,0 +1,44 @@
+-- Group: projects
+-- Name:  detail
+-- Notes: 
+SELECT prj_id AS id, prj_number, prj_name,
+  prj_start_date, prj_due_date, prj_assigned_date, prj_completed_date, 
+  CASE WHEN(prj_status='P') THEN <? value("planning") ?>
+       WHEN(prj_status='O') THEN <? value("open") ?>
+       WHEN(prj_status='C') THEN <? value("complete") ?>
+       ELSE <? value("undefined") ?>
+  END AS prj_status, 
+  prj_username, prj_owner_username,
+  COALESCE(SUM(prjtask_hours_budget), 0.0) AS budget_hrs,
+  COALESCE(SUM(prjtask_hours_actual), 0.0) AS actual_hrs,
+  COALESCE(SUM(prjtask_hours_budget - prjtask_hours_actual), 0.0) AS balance_hrs, 
+  CASE WHEN COALESCE(SUM(prjtask_hours_budget - prjtask_hours_actual), 0.0) < 0 THEN 
+  'error' END AS balance_hrs_qtforegroundrole, 
+  'qty' AS budget_hrs_xtnumericrole, 
+  'qty' AS actual_hrs_xtnumericrole, 
+  'qty' AS balance_hrs_xtnumericrole 
+FROM prj
+LEFT OUTER JOIN prjtask ON (prj_id=prjtask_prj_id)
+WHERE (true)
+<? if exists("username") ?>
+  AND (prj_username=<? value("username") ?> OR prj_owner_username=<? value("username") ?>)
+<? endif ?>
+<? if exists("assigned_username") ?> 
+  AND (prj_username=<? value("assigned_username") ?>) 
+<? elseif exists("assigned_usr_pattern") ?>
+  AND (prj_username ~ <? value("assigned_usr_pattern") ?>) 
+<? endif ?>
+<? if exists("owner_username") ?> 
+  AND (prj_owner_username=<? value("owner_username") ?>) 
+<? elseif exists("owner_usr_pattern") ?>
+  AND (prj_owner_username ~ <? value("owner_usr_pattern") ?>) 
+<? endif ?>
+<? if not exists("showComplete") ?>
+  AND (prj_status <> 'C')
+<? endif ?>
+<? if exists("id") ?>
+  AND (prj_id=<? value("id") ?>)
+<? endif ?>
+GROUP BY prj_id, prj_number, prj_name, prj_status, prj_username, prj_owner_username,
+  prj_start_date, prj_due_date, prj_assigned_date, prj_completed_date
+ORDER BY prj_number;

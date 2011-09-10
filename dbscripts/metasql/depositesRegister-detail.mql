@@ -1,0 +1,36 @@
+-- Group: depositesRegister
+-- Name: detail
+-- Notes: used by dspDepositsRegister
+
+SELECT gltrans_id, gltrans_date, gltrans_source,
+       CASE WHEN (gltrans_doctype='IN') THEN <? value("invoice") ?>
+            WHEN (gltrans_doctype='CM') THEN <? value("creditmemo") ?>
+         ELSE gltrans_doctype
+       END AS doctype,
+       gltrans_docnumber, firstLine(gltrans_notes) AS f_notes,
+       (formatGLAccount(accnt_id) || ' - ' || accnt_descrip) AS f_accnt,
+       CASE WHEN (gltrans_amount < 0) THEN formatMoney(ABS(gltrans_amount))
+         ELSE ''
+       END AS f_debit,
+       CASE WHEN (gltrans_amount < 0) THEN ABS(gltrans_amount)
+         ELSE 0
+       END AS debit,
+       CASE WHEN (gltrans_amount > 0) THEN gltrans_amount
+         ELSE 0
+       END AS credit,
+       (aropen_amount - aropen_paid) AS balance,
+       currtobase(aropen_curr_id,(aropen_amount - aropen_paid),aropen_docdate) AS base_balance,
+       currconcat(aropen_curr_id) AS currAbbr,
+       'curr' AS debit_xtnumericrole,
+       'curr' AS credit_xtnumericrole,
+       'curr' AS balance_xtnumericrole,
+       'curr' AS base_balance_xtnumericrole,
+       0 AS debit_xttotalrole,
+       0 AS credit_xttotalrole,
+       0 AS base_balance_xttotalrole
+FROM gltrans LEFT OUTER JOIN aropen ON ((text(gltrans_docnumber) = 'I-' || text(aropen_docnumber))
+                                    AND (aropen_doctype='I')), accnt
+WHERE ((gltrans_accnt_id=accnt_id)
+   AND (gltrans_doctype = 'CR')
+   AND (gltrans_date BETWEEN <? value("startDate") ?> AND <? value("endDate") ?>) )
+   ORDER BY gltrans_created DESC, gltrans_sequence, gltrans_amount;

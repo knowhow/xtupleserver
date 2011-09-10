@@ -1,0 +1,12 @@
+-- Group: contactmerge
+-- Name: purge
+-- Notes: Purge contact(s) that was/were previously merged
+
+DELETE FROM cntct WHERE cntct_id IN
+(SELECT cntctmrgd_cntct_id
+  FROM cntctmrgd
+  WHERE (NOT cntctmrgd_error)
+<? if exists("cntct_id") ?>
+AND (cntctmrgd_cntct_id=<? value("cntct_id") ?>)
+<? endif ?>)
+AND (NOT cntctUsed(cntct_id));

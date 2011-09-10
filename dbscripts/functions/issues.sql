@@ -1,0 +1,13 @@
+CREATE OR REPLACE FUNCTION issues(TEXT) RETURNS BOOLEAN AS '
+DECLARE
+  pTransType ALIAS FOR $1;
+
+BEGIN
+  IF (pTransType IN (''IM'', ''IB'', ''IT'')) THEN
+    RETURN TRUE;
+  ELSE
+    RETURN FALSE;
+  END IF;
+
+END;
+' LANGUAGE 'plpgsql';

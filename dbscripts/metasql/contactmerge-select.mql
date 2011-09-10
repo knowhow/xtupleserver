@@ -1,0 +1,7 @@
+-- Group: contactmerge
+-- Name: select
+-- Notes: Processes contact selections
+
+SELECT cntctselect(
+  <? value("cntct_id") ?>, 
+  <? value("target") ?>) AS result;

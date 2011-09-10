@@ -1,0 +1,4 @@
+-- Group: glseries
+-- Name:  postjournal
+-- Notes: 
+SELECT postJournals(<? value("sequence") ?>) AS result;

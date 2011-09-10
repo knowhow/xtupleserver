@@ -1,0 +1,12 @@
+
+CREATE OR REPLACE FUNCTION deleteIpsItem(INTEGER) RETURNS INTEGER AS $$
+DECLARE
+  pIpsItemId    ALIAS FOR $1;
+BEGIN
+
+  DELETE FROM ipsitem WHERE ipsitem_id=pIpsItemId;
+
+  RETURN 1;
+END;
+$$ LANGUAGE 'plpgsql';
+

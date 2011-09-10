@@ -1,0 +1,84 @@
+-- Group: poDeliveryDateVariances
+-- Name: detail
+-- Notes: used by dspPoDeliveryDateVariancesByItem, dspPoDeliveryDateVariancesByVendor
+
+SELECT <? if exists("byItem") ?>
+         recv.*, vend_name,
+         firstLine(recv_vend_item_number) AS itemnumber,
+         firstLine(recv_vend_item_descrip) AS itemdescrip,
+         DATE(recv_rlsd_duedate) - DATE(COALESCE(pohead_released, pohead_orderdate)) AS req_leadtime,
+         DATE(recv_duedate) - DATE(COALESCE(pohead_released, pohead_orderdate)) AS agrd_leadtime,
+         DATE(recv_date) - DATE(COALESCE(pohead_released, pohead_orderdate)) AS real_leadtime,
+         DATE(recv_date) - DATE(recv_rlsd_duedate) AS req_diff,
+	 DATE(recv_date) - DATE(recv_duedate) AS argd_diff,
+         DATE(recv_date) AS receivedate,
+         recv_rlsd_duedate AS release_duedate,  
+	 recv_duedate AS argd_duedate,
+         CASE WHEN (DATE(recv_date) - DATE(recv_rlsd_duedate) > 0) THEN 'error'
+              END AS req_diff_qtforegroundrole,
+         CASE WHEN (DATE(recv_date) - DATE(recv_duedate) > 0) THEN 'error'
+              END AS argd_diff_qtforegroundrole, 
+	 CASE WHEN (DATE(recv_date) > DATE(recv_duedate)) THEN 'error'			   
+              END AS receivedate_qtforegroundrole,			  
+         'qty' AS recv_qty_xtnumericrole
+       <? elseif exists("byVendor") ?>
+         porecv_id, porecv_ponumber, vend_name,
+         DATE(porecv_date) AS receivedate,
+         firstLine(porecv_vend_item_number) AS venditemnumber,
+         firstLine(porecv_vend_item_descrip) AS venditemdescrip,
+         porecv_qty, porecv_duedate, porecv_date,
+         DATE(porecv_rlsd_duedate) - DATE(COALESCE(porecv_released, porecv_orderdate)) AS req_leadtime,  
+         DATE(porecv_duedate) - DATE(COALESCE(porecv_released, porecv_orderdate)) AS agrd_leadtime,
+	 DATE(porecv_date) - DATE(COALESCE(porecv_released, porecv_orderdate)) AS real_leadtime, 
+	 DATE(porecv_date) - DATE(porecv_rlsd_duedate) AS req_diff, 
+         DATE(porecv_date) - DATE(porecv_duedate) AS argd_diff, 
+         porecv_rlsd_duedate AS release_duedate,  
+	 porecv_duedate AS argd_duedate,
+	 CASE WHEN (DATE(porecv_date) - DATE(porecv_rlsd_duedate) > 0) THEN 'error'
+              END AS req_diff_qtforegroundrole,
+	 CASE WHEN (DATE(porecv_date) - DATE(porecv_duedate) > 0) THEN 'error'
+              END AS argd_diff_qtforegroundrole,
+	 CASE WHEN (DATE(porecv_date) > DATE(porecv_duedate)) THEN 'error'
+              END AS receivedate_qtforegroundrole,
+         'qty' AS porecv_qty_xtnumericrole
+       <? endif ?>
+
+FROM vend,
+    <? if exists("byItem") ?>
+      itemsite, recv LEFT OUTER JOIN pohead ON (recv_order_number = pohead_number)
+    <? elseif exists("byVendor") ?>
+      porecv
+    <? endif ?>
+WHERE (
+<? if exists("byItem") ?>
+       (recv_vend_id=vend_id)
+  AND  (recv_itemsite_id=itemsite_id)
+  AND  (itemsite_item_id=<? value("item_id") ?>)
+  AND  (recv_order_type='PO')
+  AND  (DATE(recv_date) BETWEEN <? value("startDate") ?> AND <? value("endDate") ?>)
+  <? if exists("warehous_id") ?>
+   AND (itemsite_warehous_id=<? value("warehous_id") ?>)
+  <? endif ?>
+  <? if exists("agentUsername") ?>
+    AND (recv_agent_username=<? value("agentUsername") ?>)
+  <? endif ?>
+<? elseif exists("byVendor") ?>
+      (porecv_vend_id=vend_id)
+  AND (vend_id=<? value("vend_id") ?>)
+  AND (DATE(porecv_date) BETWEEN <? value("startDate") ?> AND <? value("endDate") ?>)
+  <? if exists("warehous_id") ?>
+   AND (porecv_itemsite_id in (SELECT itemsite_id
+                               FROM itemsite
+                               WHERE (itemsite_warehous_id=<? value("warehous_id") ?>)))
+  <? endif ?>
+  <? if exists("selectedPurchasingAgent") ?>
+   AND (porecv_agent_username=<? value("username") ?>)
+  <? endif ?>
+<? endif ?>
+      )
+ORDER BY
+<? if exists("byItem") ?>
+  recv_date DESC;
+<? elseif exists("byVendor") ?>
+  porecv_date DESC;
+<? endif ?>

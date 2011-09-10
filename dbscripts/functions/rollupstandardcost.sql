@@ -1,0 +1,8 @@
+CREATE OR REPLACE FUNCTION rollUpStandardCost(INTEGER) RETURNS INTEGER AS '
+DECLARE
+    pItemid ALIAS FOR $1;
+
+BEGIN
+    RETURN rollUpSorACost(pItemid, FALSE);
+END;
+' LANGUAGE 'plpgsql';

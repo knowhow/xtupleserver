@@ -1,0 +1,91 @@
+-- Group: contact
+-- Name:  uses
+-- Notes: Where used query for Contact in SproutCore
+SELECT <? value("id") ?>::text || '.' || crmacct_id::text || '.' || '1' AS id,
+       <? value("id") ?> AS contact,
+       crmacct_id AS type_id, 1 AS type_code, <? value("crmacct") ?> AS type,
+       crmacct_number AS number,
+       crmacct_name AS name, <? value("primary") ?> AS role,
+       (crmacct_active) AS active
+  FROM crmacct WHERE (crmacct_cntct_id_1=<? value("id") ?>)
+               UNION 
+SELECT <? value("id") ?>::text || '.' || crmacct_id::text || '.' || '2' AS id,
+       <? value("id") ?> AS contact,
+       crmacct_id AS type_id, 2 AS type_code, <? value("crmacct") ?> AS type,
+       crmacct_number AS number,
+       crmacct_name AS name, <? value("secondary") ?> AS role,
+       (crmacct_active) AS active
+  FROM crmacct WHERE (crmacct_cntct_id_2=<? value("id") ?>)
+UNION 
+SELECT <? value("id") ?>::text || '.' || cust_id::text || '.' || '3' AS id,
+       <? value("id") ?> AS contact,
+       cust_id AS type_id, 3 AS type_code, <? value("cust") ?> AS type,
+       cust_number AS number,
+       cust_name AS name, <? value("billing") ?> AS role,
+       (cust_active) AS active
+  FROM custinfo WHERE (cust_cntct_id=<? value("id") ?>)
+UNION 
+SELECT <? value("id") ?>::text || '.' || cust_id::text || '.' || '4' AS id,
+       <? value("id") ?> AS contact,
+       cust_id AS type_id, 4 AS type_code, <? value("cust") ?> AS type,
+       cust_number AS number,
+       cust_name AS name, <? value("correspond") ?> AS role,
+       (cust_active) AS active
+  FROM custinfo WHERE (cust_corrcntct_id=<? value("id") ?>)
+UNION 
+SELECT <? value("id") ?>::text || '.' || vend_id::text || '.' || '5' AS id,
+       <? value("id") ?> AS contact,
+       vend_id AS type_id, 5 AS type_code, <? value("vend") ?> AS type,
+       vend_number AS number,
+       vend_name AS name, <? value("primary") ?> AS role,
+       (vend_active) AS active
+  FROM vendinfo WHERE (vend_cntct1_id=<? value("id") ?>)
+UNION 
+SELECT <? value("id") ?>::text || '.' || vend_id::text || '.' || '6' AS id,
+       <? value("id") ?> AS contact,
+       vend_id AS type_id, 6 AS type_code, <? value("vend") ?> AS type,
+       vend_number AS number,
+       vend_name AS name, <? value("secondary") ?> AS role,
+       (vend_active) AS active
+  FROM vendinfo WHERE (vend_cntct2_id=<? value("id") ?>)
+UNION 
+SELECT <? value("id") ?>::text || '.' || prospect_id::text || '.' || '7' AS id,
+       <? value("id") ?> AS contact,
+       prospect_id AS type_id, 7 AS type_code, <? value("prospect") ?> AS type,
+       prospect_number AS number,
+       prospect_name AS name, '' AS role,
+       (prospect_active) AS active
+  FROM prospect WHERE (prospect_cntct_id=<? value("id") ?>)
+UNION 
+SELECT <? value("id") ?>::text || '.' || shipto_id::text || '.' || '8' AS id,
+       <? value("id") ?> AS contact,
+       shipto_id AS type_id, 8 AS type_code, <? value("shipto") ?> AS type,
+       shipto_num AS number,
+       shipto_name AS name, '' AS role,
+       (shipto_active) AS active
+  FROM shiptoinfo WHERE (shipto_cntct_id=<? value("id") ?>)
+UNION 
+SELECT <? value("id") ?>::text || '.' || vendaddr_id::text || '.' || '9' AS id,
+       <? value("id") ?> AS contact,
+       vendaddr_id AS type_id, 9 AS type_code, <? value("vendaddr") ?> AS type,
+       vendaddr_code AS number,
+       vendaddr_name AS name, '' AS role,
+       (true) AS active
+  FROM vendaddrinfo WHERE (vendaddr_cntct_id=<? value("id") ?>)
+UNION  
+SELECT <? value("id") ?>::text || '.' || warehous_id::text || '.' || '10' AS id,
+       <? value("id") ?> AS contact,
+       warehous_id AS type_id, 10 AS type_code, <? value("whs") ?> AS type,
+       warehous_code AS number,
+       warehous_descrip AS name, '' AS role,
+       (warehous_active) AS active
+  FROM whsinfo WHERE (warehous_cntct_id=<? value("id") ?>)
+UNION 
+SELECT <? value("id") ?>::text || '.' || emp_id::text || '.' || '11' AS id,
+       <? value("id") ?> AS contact,
+       emp_id AS type_id, 11 AS type_code, <? value("emp") ?> AS type,
+       emp_code AS number,
+       emp_number AS name, '' AS role,
+       (emp_active) AS active
+  FROM emp WHERE (emp_cntct_id=<? value("id") ?>)
+ORDER BY type, number;

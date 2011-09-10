@@ -1,0 +1,5 @@
+-- Group: contactmerge
+-- Name: contactused
+-- Notes: Checks to see if this contact is used anywhere
+
+SELECT cntctused(<? value("cntct_id") ?>) AS used;

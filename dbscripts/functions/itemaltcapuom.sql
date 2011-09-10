@@ -1,0 +1,8 @@
+CREATE OR REPLACE FUNCTION itemAltCapUOM(INTEGER) RETURNS TEXT STABLE AS $$
+DECLARE
+  pItemid ALIAS FOR $1;
+
+BEGIN
+  RETURN itemUOMByType(pItemid, 'AltCapacity');
+END;
+$$ LANGUAGE 'plpgsql';
