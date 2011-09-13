@@ -22,15 +22,23 @@ SELECT c.crmacct_id,
        c.crmacct_type,
        c.crmacct_usr_username  IS NOT NULL   AS usr,
        c.crmacct_vend_id       IS NOT NULL   AS vend,
-       firstline(c.crmacct_notes)            AS notes,
+       trim(firstline(c.crmacct_notes))      AS notes,
 
        CASE crmacctsel_src_crmacct_id=crmacctsel_dest_crmacct_id
             WHEN true THEN '#ccc'
        END AS qtbackgroundrole,
 
+       CASE WHEN c.crmacct_active IS NULL THEN <? value('na') ?> END AS crmacct_active_qtdisplayrole,
+       CASE WHEN COALESCE(formatCntctName(c.crmacct_cntct_id_1), '') = '' THEN <? value('na') ?> END AS primary_qtdisplayrole,
+       CASE WHEN COALESCE(formatCntctName(c.crmacct_cntct_id_2), '') = '' THEN <? value('na') ?> END AS secondary_qtdisplayrole,
+       CASE WHEN COALESCE(c.crmacct_name,           '') = '' THEN <? value('na') ?>  END AS crmacct_name_qtdisplayrole,
+       CASE WHEN COALESCE(c.crmacct_number,         '') = '' THEN <? value('na') ?>  END AS crmacct_number_qtdisplayrole,
+       CASE WHEN COALESCE(c.crmacct_owner_username, '') = '' THEN <? value('na') ?>  END AS owner_qtdisplayrole,
+       CASE WHEN COALESCE(p.crmacct_number,         '') = '' THEN <? value('na') ?>  END AS parent_qtdisplayrole,
        CASE c.crmacct_type WHEN 'I' THEN <? value('individual') ?>
                            WHEN 'O' THEN <? value('organization') ?>
-                           ELSE <? value('unknown') ?> END AS crmacct_type_qtdisplayrole,
+                           ELSE <? value('na') ?> END AS crmacct_type_qtdisplayrole,
+       CASE WHEN COALESCE(TRIM(firstline(c.crmacct_notes)), '') = '' THEN <? value('na') ?> END AS notes_qtdisplayrole,
 
        CASE WHEN crmacctsel_src_crmacct_id=crmacctsel_dest_crmacct_id THEN 'emphasis'
        END AS crmacct_number_qtforegroundrole,

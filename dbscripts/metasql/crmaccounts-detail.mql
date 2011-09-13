@@ -22,7 +22,7 @@ SELECT DISTINCT ON (crmacct_number)
 <? foreach("char_id_date_list") ?>
   , charass_alias<? literal("char_id_date_list") ?>.charass_value::date AS char<? literal("char_id_date_list") ?>
 <? endforeach ?>
-FROM crmacct LEFT OUTER JOIN
+FROM crmacct() LEFT OUTER JOIN
   cntct ON (crmacct_cntct_id_1=cntct_id) LEFT OUTER JOIN
   addr ON (cntct_addr_id=addr_id) 
 <? foreach("char_id_text_list") ?>
@@ -98,4 +98,17 @@ WHERE true
   AND (crmacct_id=<? value("id") ?>)
 <? endif ?>
 <? literal("charClause") ?>
+
+<? if exists("excludeMergeWIP") ?>
+  AND (crmacct_id NOT IN (SELECT mrgundo_base_id
+                            FROM mrgundo
+                           WHERE (mrgundo_base_schema='public')
+                             AND (mrgundo_base_table='crmacct')
+                          UNION
+                          SELECT crmacctsel_src_crmacct_id
+                            FROM crmacctsel
+                          UNION
+                          SELECT crmacctsel_dest_crmacct_id
+                            FROM crmacctsel))
+<? endif ?>
 ORDER BY crmacct_number; 

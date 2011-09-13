@@ -228,6 +228,15 @@ BEGIN
      AND (itemsite_controlmethod <> 'N')
      AND (invcnt_id=pInvcntid) );
 
+    IF ( SELECT metric_value
+        FROM metric
+        WHERE ((metric_name = 'EnableAsOfQOH')
+        AND (metric_value = 't'))) THEN
+      IF (NOT postIntoInvBalance(_invhistid)) THEN
+        RAISE EXCEPTION 'Post into Inventory Balance for invhist_id=% was unsuccessful',_invhistid;
+      END IF;
+    END IF;
+
 --  Update the QOH
 --  Avoid negative value when average cost item
     UPDATE itemsite

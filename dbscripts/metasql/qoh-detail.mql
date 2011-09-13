@@ -114,12 +114,16 @@ FROM (
 --  Quantity on Hand
 SELECT itemsite_id, detail,warehous_code,
        classcode_code, item_number, uom_name,
-       costcat_code, 
+       costcat_code,
+       item_descrip1, item_descrip2,
        (item_descrip1 || ' ' || item_descrip2) AS itemdescrip,
        defaultlocation,
-       reorderlevel, qoh, nnqoh,
+       reorderlevel, formatQty(reorderlevel) AS f_reorderlevel,
+       qoh, formatQty(qoh) AS f_qoh,
+       nnqoh, formatQty(nnqoh) AS f_nnqoh,
        CASE WHEN (itemsite_loccntrl) THEN nnqoh END AS f_nnqoh,
        cost, (cost * qoh) AS value,
+       formatMoney(cost) AS f_cost, formatMoney(cost * qoh) AS f_value,
        CASE WHEN (itemsite_loccntrl) THEN (cost * nnqoh) END AS f_nnvalue,
        CASE WHEN(itemsite_costmethod='A') THEN 'Average'
             WHEN(itemsite_costmethod='S') THEN 'Standard'

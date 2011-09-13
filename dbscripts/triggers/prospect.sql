@@ -1,23 +1,8 @@
 CREATE OR REPLACE FUNCTION _prospectTrigger() RETURNS TRIGGER AS $$
-DECLARE
-  _rec RECORD;
-  _check BOOLEAN;
-
 BEGIN
 
-  IF(TG_OP = 'DELETE') THEN
-    _rec := OLD;
-  ELSE
-    _rec := NEW;
-  END IF;
-
-  --  Checks
-  IF (_rec.prospect_owner_username=getEffectiveXtUser()) THEN
-    SELECT (checkPrivilege('MaintainAllProspects') OR checkPrivilege('MaintainPersonalProspects')) INTO _check;
-  ELSE
-    SELECT checkPrivilege('MaintainAllProspects') INTO _check;
-  END IF;
-  IF NOT (_check) THEN
+  IF (NOT checkPrivilege('MaintainProspectMasters') AND
+      NOT checkPrivilege('MaintainProspects')) THEN
     RAISE EXCEPTION 'You do not have privileges to maintain Prospects.';
   END IF;
 

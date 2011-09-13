@@ -39,22 +39,25 @@ BEGIN
   _result:= changeFkeyPointers('public', 'crmacct', pSourceId, pTargetId,
                                ARRAY[ 'crmacctsel', 'crmacctmrgd' ], _purge)
           + changePseudoFKeyPointers('public', 'alarm', 'alarm_source_id',
-                                     pSourceId, pTargetId,
+                                     pSourceId, 'public', 'crmacct', pTargetId,
                                      'alarm_source', 'CRMA', _purge)
+          + changePseudoFKeyPointers('public', 'charass', 'charass_target_id',
+                                     pSourceId, 'public', 'crmacct', pTargetId,
+                                     'charass_target_type', 'CRMACCT', _purge)
           + changePseudoFKeyPointers('public', 'comment', 'comment_source_id',
-                                     pSourceId, pTargetId,
+                                     pSourceId, 'public', 'crmacct', pTargetId,
                                      'comment_source', 'CRMA', _purge)
           + changePseudoFKeyPointers('public', 'docass', 'docass_source_id',
-                                     pSourceId, pTargetId,
+                                     pSourceId, 'public', 'crmacct', pTargetId,
                                      'docass_source_type', 'CRMA', _purge)
           + changePseudoFKeyPointers('public', 'docass', 'docass_target_id',
-                                     pSourceId, pTargetId,
+                                     pSourceId, 'public', 'crmacct', pTargetId,
                                      'docass_target_type', 'CRMA', _purge)
           + changePseudoFKeyPointers('public', 'imageass', 'imageass_source_id',
-                                     pSourceId, pTargetId,
+                                     pSourceId, 'public', 'crmacct', pTargetId,
                                      'imageass_source', 'CRMA', _purge)
           + changePseudoFKeyPointers('public', 'url', 'url_source_id',
-                                     pSourceId, pTargetId,
+                                     pSourceId, 'public', 'crmacct', pTargetId,
                                      'url_source', 'CRMA', _purge)
           ;
 
@@ -62,7 +65,7 @@ BEGIN
   IF (fetchMetricBool('EnableBatchManager') AND packageIsEnabled('xtbatch')) THEN
     _result:= _result
             + changePseudoFKeyPointers('xtbatch', 'emlassc', 'emlassc_assc_id',
-                                       pSourceId, pTargetId,
+                                       pSourceId, 'public', 'crmacct', pTargetId,
                                        'emlassc_type', 'CRMA', _purge);
   END IF;
 
@@ -70,15 +73,16 @@ BEGIN
   FOR _coldesc IN SELECT attname, typname
                     FROM pg_attribute
                     JOIN pg_type      ON (atttypid=pg_type.oid)
-                    JOIN pg_class     ON (pg_type.oid=atttypid)
+                    JOIN pg_class     ON (attrelid=pg_class.oid)
                     JOIN pg_namespace ON (relnamespace=pg_namespace.oid)
-                   WHERE (relname='crmacct')
+                   WHERE (attnum >= 0)
+                     AND (relname='crmacct')
                      AND (nspname='public')
-                     AND (attname ~ '^crmacctsel_mrg_')
+                     AND (attname NOT IN ('crmacct_id', 'crmacct_number'))
   LOOP
 
     -- if we're supposed to merge this column at all
-    EXECUTE 'SELECT ' || quote_ident(_coldesc.attname) || '
+    EXECUTE 'SELECT ' || quote_ident('crmacctsel_mrg_' || _coldesc.attname) || '
                FROM crmacctsel
               WHERE ((crmacctsel_src_crmacct_id='  || pSourceId || ')
                  AND (crmacctsel_dest_crmacct_id=' || pTargetId || '))' INTO _mrgcol;
@@ -86,19 +90,26 @@ BEGIN
     IF (_mrgcol) THEN
       _colname := REPLACE(_coldesc.attname, 'crmacctsel_mrg_', '');
 
-      -- optionally back up the old value
+      -- optionally back up the old value from the destination
+      -- we'll back up the old value from the source further down
       IF (NOT _purge) THEN
         BEGIN
-          EXECUTE 'INSERT INTO mrgundo
-                   SELECT ''public'', ''crmacct'', ' || pTargetId || ',
-                          ''public'', ''crmacct'', ''crmacct_id'', crmacct_id, ' ||
-                          quote_literal(_colname)                 || ', '        ||
-                          quote_ident(_colname)                   || ', '        ||
-                          quote_literal(_coldesc.typname)         || '
+          EXECUTE 'INSERT INTO mrgundo (
+                       mrgundo_schema,      mrgundo_table,
+                       mrgundo_pkey_col,    mrgundo_pkey_id,
+                       mrgundo_col,         mrgundo_value,      mrgundo_type,
+                       mrgundo_base_schema, mrgundo_base_table, mrgundo_base_id
+                 ) SELECT ''public'',     ''crmacct'',
+                          ''crmacct_id'', crmacct_id, '   ||
+                          quote_literal(_colname)         || ', ' ||
+                          quote_ident(_colname)           || ', ' ||
+                          quote_literal(_coldesc.typname) || ',
+                          ''public'', ''crmacct'', crmacct_id
                      FROM crmacct
                     WHERE (crmacct_id=' || pTargetId || ');' ;
         EXCEPTION WHEN unique_violation THEN
-          RAISE NOTICE 'Could not make a backup copy of % when merging % into %.',
+          RAISE EXCEPTION 'Could not make a backup copy of % when merging % into % [xtuple: merge, -8, %, %, public, crmacct, %]',
+                       _colname, pSourceId, pTargetId,
                        _colname, pSourceId, pTargetId;
         END;
       END IF;
@@ -158,6 +169,29 @@ BEGIN
                   WHERE crmacct_id=' || pSourceId
         INTO _tmpid;
 
+        -- now we have the data to back up the source
+        IF (NOT _purge) THEN
+          BEGIN
+            EXECUTE 'INSERT INTO mrgundo (
+                         mrgundo_schema,      mrgundo_table,
+                         mrgundo_pkey_col,    mrgundo_pkey_id,
+                         mrgundo_col,         mrgundo_value,      mrgundo_type,
+                         mrgundo_base_schema, mrgundo_base_table, mrgundo_base_id
+                   ) SELECT ''public'',     ''crmacct'',
+                            ''crmacct_id'', crmacct_id, '   ||
+                            quote_literal(_colname)         || ', ' ||
+                            quote_ident(_colname)           || ', ' ||
+                            quote_literal(_coldesc.typname) || ',
+                            ''public'', ''crmacct'', '      || pTargetId || '
+                       FROM crmacct
+                      WHERE (crmacct_id=' || pSourceId || ');' ;
+          EXCEPTION WHEN unique_violation THEN
+            RAISE EXCEPTION 'Could not make a backup copy of % when merging % into % [xtuple: merge, -8, %, %, public, crmacct, %]',
+                         _colname, pSourceId, pTargetId,
+                         _colname, pSourceId, pTargetId;
+          END;
+        END IF;
+
         EXECUTE 'UPDATE crmacct SET ' || quote_ident(_colname) || '=NULL
               WHERE (crmacct_id=' || pSourceId || ');';
 
@@ -183,10 +217,15 @@ BEGIN
   IF (_purge) THEN
     DELETE FROM crmacct WHERE crmacct = pSourceId;
   ELSE
-    INSERT INTO mrgundo
-      SELECT 'public', 'crmacct', pTargetId,
-             'public', 'crmacct', pSourceId,
-             'crmacct_active',    crmacct_active, 'bool'
+    INSERT INTO mrgundo (
+           mrgundo_schema,      mrgundo_table,
+           mrgundo_pkey_col,    mrgundo_pkey_id,
+           mrgundo_col,         mrgundo_value,      mrgundo_type,
+           mrgundo_base_schema, mrgundo_base_table, mrgundo_base_id
+    ) SELECT 'public',         'crmacct',
+             'crmacct_id',     pSourceId,
+             'crmacct_active', crmacct_active, 'bool',
+             'public',         'crmacct',       pTargetId
         FROM crmacct
        WHERE crmacct_active AND (crmacct_id = pSourceId);
     GET DIAGNOSTICS _count = ROW_COUNT;
@@ -194,6 +233,18 @@ BEGIN
       _result := _result + _count;
       UPDATE crmacct SET crmacct_active = false WHERE (crmacct_id=pSourceId);
     END IF;
+
+    -- make a special record of the source crm account so we can delete it later
+    INSERT INTO mrgundo (
+           mrgundo_schema,      mrgundo_table,
+           mrgundo_pkey_col,    mrgundo_pkey_id,
+           mrgundo_col,         mrgundo_value,      mrgundo_type,
+           mrgundo_base_schema, mrgundo_base_table, mrgundo_base_id
+     ) VALUES (
+           'public',     'crmacct',
+           'crmacct_id', pSourceId,
+           NULL,         NULL,       NULL,
+           'public',     'crmacct', pTargetId);
   END IF;
 
   DELETE FROM crmacctsel WHERE (crmacctsel_src_crmacct_id=pSourceId);

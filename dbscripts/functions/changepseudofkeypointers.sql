@@ -1,13 +1,15 @@
-CREATE OR REPLACE FUNCTION changePseudoFKeyPointers(TEXT, TEXT, TEXT, INTEGER, INTEGER, TEXT, TEXT, BOOLEAN) RETURNS INTEGER AS $$
+CREATE OR REPLACE FUNCTION changePseudoFKeyPointers(TEXT, TEXT, TEXT, INTEGER, TEXT, TEXT, INTEGER, TEXT, TEXT, BOOLEAN) RETURNS INTEGER AS $$
 DECLARE
   pSchema       ALIAS FOR $1;
   pTable        ALIAS FOR $2;
   pFkeyCol      ALIAS FOR $3;
   pSourceId     ALIAS FOR $4;
-  pTargetId     ALIAS FOR $5;
-  pTypeCol      ALIAS FOR $6;
-  pType         ALIAS FOR $7;
-  _purge        BOOLEAN := COALESCE($8, FALSE);
+  pBaseSchema   ALIAS FOR $5;
+  pBaseTable    ALIAS FOR $6;
+  pTargetId     ALIAS FOR $7;
+  pTypeCol      ALIAS FOR $8;
+  pType         ALIAS FOR $9;
+  _purge        BOOLEAN := COALESCE($10, FALSE);
 
   _counter      INTEGER := 0;
   _coltype      TEXT;
@@ -30,15 +32,22 @@ BEGIN
                         pSchema, pTable, pSchema, pTable;
     END IF;
 
-    EXECUTE 'INSERT INTO mrgundo 
-             SELECT ' || quote_literal(pSchema)  || ', '
-                      || quote_literal(pTable)   || ', '
-                      || quote_literal(_pk[1])   || ', ' 
-                      || quote_ident(_pk[1])     || ', '
-                      || quote_literal(pFkeyCol) || ', ' 
-                      || quote_ident(pFkeyCol)   || ', ' 
-                      || quote_literal(_coltype) || '
-               FROM ' || quote_ident(pSchema)  || '.' || quote_ident(pTable) || '
+    EXECUTE 'INSERT INTO mrgundo (
+                     mrgundo_schema,      mrgundo_table,
+                     mrgundo_pkey_col,    mrgundo_pkey_id,
+                     mrgundo_col,         mrgundo_value,      mrgundo_type,
+                     mrgundo_base_schema, mrgundo_base_table, mrgundo_base_id
+           ) SELECT ' || quote_literal(pSchema)     || ', '
+                      || quote_literal(pTable)      || ', '
+                      || quote_literal(_pk[1])      || ', ' 
+                      || quote_ident(_pk[1])        || ', '
+                      || quote_literal(pFkeyCol)    || ', ' 
+                      || quote_ident(pFkeyCol)      || ', ' 
+                      || quote_literal(_coltype)    || ', '
+                      || quote_literal(pBaseSchema) || ', '
+                      || quote_literal(pBaseTable)  || ', '
+                      || pTargetId                  || '
+               FROM '  || quote_ident(pSchema)  || '.' || quote_ident(pTable) || '
               WHERE (('|| quote_ident(pFkeyCol) || '=' || pSourceId || ')
                  AND ('|| quote_ident(pTypeCol) || '=' || quote_literal(pType) || '));';
   END IF;
@@ -55,5 +64,5 @@ BEGIN
 END;
 $$ LANGUAGE 'plpgsql';
 
-COMMENT ON FUNCTION changePseudoFKeyPointers(TEXT, TEXT, TEXT, INTEGER, INTEGER, TEXT, TEXT, BOOLEAN) IS
-'Change the data in pSchema.pTable with a pseudo-foreign key relationship to another (unnamed) table. Make pSchema.pTable point to the record with primary key pTargetId instead of the record with primary key pSourceId. pSchema.pTable cannot have a true foreign key relationship because it holds data that can point to any of several tables. The pType value in the pTypeCol column describes which table the data refer to (e.g. "T" may indicate that the current record refers to a "cntct"). If the final arg is TRUE, make a backup copy of the data in the mrghist table.';
+COMMENT ON FUNCTION changePseudoFKeyPointers(TEXT, TEXT, TEXT, INTEGER, TEXT, TEXT, INTEGER, TEXT, TEXT, BOOLEAN) IS
+'Change the data in pSchema.pTable with a pseudo-foreign key relationship to another (unnamed) table. Make pSchema.pTable point to the record with primary key pTargetId instead of the record with primary key pSourceId. pSchema.pTable cannot have a true foreign key relationship because it holds data that can point to any of several tables. The pType value in the pTypeCol column describes which table the data refer to (e.g. "T" may indicate that the current record refers to a "cntct"). If the final arg is TRUE, make a backup copy of the data in the mrgundo table.';

@@ -1,9 +1,8 @@
-CREATE OR REPLACE FUNCTION _quheadtrigger() RETURNS "trigger" AS $$
+CREATE OR REPLACE FUNCTION _quheadtrigger() RETURNS "trigger" AS '
 DECLARE
   _cmnttypeid INTEGER;
   _oldHoldType TEXT;
   _newHoldType TEXT;
-  _rec RECORD;
   _p RECORD;
   _a RECORD;
   _w RECORD;
@@ -15,34 +14,24 @@ DECLARE
 
 BEGIN
 
-  IF(TG_OP = 'DELETE') THEN
-    _rec := OLD;
-  ELSE
-    _rec := NEW;
-  END IF;
-
   --  Checks
-  IF (_rec.quhead_owner_username=getEffectiveXtUser()) THEN
-    SELECT (checkPrivilege('MaintainAllQuotes') OR checkPrivilege('MaintainPersonalQuotes')) INTO _check;
-  ELSE
-    SELECT checkPrivilege('MaintainAllQuotes') INTO _check;
-  END IF;
+  SELECT checkPrivilege(''MaintainQuotes'') INTO _check;
   IF NOT (_check) THEN
-    RAISE EXCEPTION 'You do not have privileges to maintain Quotes.';
+    RAISE EXCEPTION ''You do not have privileges to maintain Quotes.'';
   END IF;
 
   -- If this is imported, check the quote number
-  IF (TG_OP = 'INSERT') THEN
+  IF (TG_OP = ''INSERT'') THEN
     IF (NEW.quhead_imported) THEN
-      SELECT fetchMetricText('QUNumberGeneration') INTO _numGen;
-      IF ((NEW.quhead_number IS NULL) AND (_numGen='M')) THEN
-        RAISE EXCEPTION 'You must supply a Quote Number.';
+      SELECT fetchMetricText(''QUNumberGeneration'') INTO _numGen;
+      IF ((NEW.quhead_number IS NULL) AND (_numGen=''M'')) THEN
+        RAISE EXCEPTION ''You must supply a Quote Number.'';
       ELSE
-        IF ((NEW.quhead_number IS NOT NULL) AND (_numGen='A')) THEN
-          RAISE EXCEPTION 'You may not supply a new Quote Number;
-                          xTuple will generate the number.';
+        IF ((NEW.quhead_number IS NOT NULL) AND (_numGen=''A'')) THEN
+          RAISE EXCEPTION ''You may not supply a new Quote Number;
+                          xTuple will generate the number.'';
         ELSE
-          IF ((NEW.quhead_number IS NULL) AND (_numGen='O')) THEN
+          IF ((NEW.quhead_number IS NULL) AND (_numGen=''O'')) THEN
             SELECT fetchqunumber() INTO NEW.quhead_number;
           ELSE
             IF (NEW.quhead_number IS NULL) THEN
@@ -53,14 +42,14 @@ BEGIN
       END IF;
     END IF;
   ELSE
-    IF (TG_OP = 'UPDATE') THEN
+    IF (TG_OP = ''UPDATE'') THEN
        IF (NEW.quhead_number <> OLD.quhead_number) THEN
-         RAISE EXCEPTION 'The order number may not be changed.';
+         RAISE EXCEPTION ''The order number may not be changed.'';
        END IF;
     END IF;
   END IF;
 
-  IF (TG_OP IN ('INSERT','UPDATE')) THEN
+  IF (TG_OP IN (''INSERT'',''UPDATE'')) THEN
     -- Get Customer data
     IF (NEW.quhead_shipto_id IS NULL) THEN
       SELECT * INTO _p FROM (
@@ -103,7 +92,7 @@ BEGIN
     -- If there is customer data, then we can get to work
     IF (FOUND) THEN
       -- Only check PO number for imports because UI checks when whole quote is saved
-      IF (TG_OP = 'INSERT') THEN
+      IF (TG_OP = ''INSERT'') THEN
           -- Set to defaults if values not provided
           NEW.quhead_shipto_id		:= COALESCE(NEW.quhead_shipto_id,_p.shipto_id);
 	  NEW.quhead_salesrep_id 	:= COALESCE(NEW.quhead_salesrep_id,_p.shipto_salesrep_id,_p.cust_salesrep_id);
@@ -115,12 +104,12 @@ BEGIN
           NEW.quhead_curr_id		:= COALESCE(NEW.quhead_curr_id,_p.cust_curr_id,basecurrid());
           NEW.quhead_taxzone_id		:= COALESCE(NEW.quhead_taxzone_id,_p.shipto_taxzone_id,_p.cust_taxzone_id);
           NEW.quhead_freight		:= COALESCE(NEW.quhead_freight,0);
-          NEW.quhead_custponumber	:= COALESCE(NEW.quhead_custponumber,'');
-          NEW.quhead_ordercomments	:= COALESCE(NEW.quhead_ordercomments,'');
-          NEW.quhead_shipcomments	:= COALESCE(NEW.quhead_shipcomments,'');
-          NEW.quhead_shiptophone	:= COALESCE(NEW.quhead_shiptophone,'');
+          NEW.quhead_custponumber	:= COALESCE(NEW.quhead_custponumber,'''');
+          NEW.quhead_ordercomments	:= COALESCE(NEW.quhead_ordercomments,'''');
+          NEW.quhead_shipcomments	:= COALESCE(NEW.quhead_shipcomments,'''');
+          NEW.quhead_shiptophone	:= COALESCE(NEW.quhead_shiptophone,'''');
           NEW.quhead_misc		:= COALESCE(NEW.quhead_misc,0);
-          NEW.quhead_misc_descrip	:= COALESCE(NEW.quhead_misc_descrip,'');
+          NEW.quhead_misc_descrip	:= COALESCE(NEW.quhead_misc_descrip,'''');
 
           IF ((NEW.quhead_warehous_id IS NULL) OR (NEW.quhead_fob IS NULL)) THEN
             IF (NEW.quhead_warehous_id IS NULL) THEN
@@ -130,7 +119,7 @@ BEGIN
                 AND (warehous_shipping)
                 AND (warehous_active)
                 AND (usrpref_username=getEffectiveXtUser())
-                AND (usrpref_name='PreferredWarehouse'));
+                AND (usrpref_name=''PreferredWarehouse''));
             ELSE
               SELECT warehous_id,warehous_fob INTO _w
               FROM whsinfo
@@ -145,45 +134,45 @@ BEGIN
       END IF;
       
       --Auto create project if applicable
-      IF ((TG_OP = 'INSERT') AND (NEW.quhead_prj_id=-1)) THEN
-        SELECT fetchMetricBool('AutoCreateProjectsForOrders') INTO _check;
+      IF ((TG_OP = ''INSERT'') AND (NEW.quhead_prj_id=-1)) THEN
+        SELECT fetchMetricBool(''AutoCreateProjectsForOrders'') INTO _check;
         IF (_check) THEN
-          SELECT NEXTVAL('prj_prj_id_seq') INTO _prjId;
+          SELECT NEXTVAL(''prj_prj_id_seq'') INTO _prjId;
           NEW.quhead_prj_id := _prjId;
           INSERT INTO prj (prj_id, prj_number, prj_name, prj_descrip, prj_so, prj_wo, prj_po)
-               VALUES(_prjId, NEW.quhead_number, NEW.quhead_number, 'Auto Generated Project from Quote.', TRUE, TRUE, TRUE);
+               VALUES(_prjId, NEW.quhead_number, NEW.quhead_number, ''Auto Generated Project from Quote.'', TRUE, TRUE, TRUE);
         END IF;
       END IF;
 
       -- Deal with Billing Address
-      IF (TG_OP = 'INSERT') THEN
+      IF (TG_OP = ''INSERT'') THEN
         IF (_p.cust_ffbillto) THEN
-          -- If they didn't supply data, we'll put in the bill to address
-          NEW.quhead_billtoname=COALESCE(NEW.quhead_billtoname,_p.cust_name,'');
-          NEW.quhead_billtoaddress1=COALESCE(NEW.quhead_billtoaddress1,_p.addr_line1,'');
-          NEW.quhead_billtoaddress2=COALESCE(NEW.quhead_billtoaddress2,_p.addr_line2,'');
-          NEW.quhead_billtoaddress3=COALESCE(NEW.quhead_billtoaddress3,_p.addr_line3,'');    
-          NEW.quhead_billtocity=COALESCE(NEW.quhead_billtocity,_p.addr_city,''); 
-          NEW.quhead_billtostate=COALESCE(NEW.quhead_billtostate,_p.addr_state,'');
-          NEW.quhead_billtozip=COALESCE(NEW.quhead_billtozip,_p.addr_postalcode,'');
-          NEW.quhead_billtocountry=COALESCE(NEW.quhead_billtocountry,_p.addr_country,'');   
+          -- If they didn''t supply data, we''ll put in the bill to address
+          NEW.quhead_billtoname=COALESCE(NEW.quhead_billtoname,_p.cust_name,'''');
+          NEW.quhead_billtoaddress1=COALESCE(NEW.quhead_billtoaddress1,_p.addr_line1,'''');
+          NEW.quhead_billtoaddress2=COALESCE(NEW.quhead_billtoaddress2,_p.addr_line2,'''');
+          NEW.quhead_billtoaddress3=COALESCE(NEW.quhead_billtoaddress3,_p.addr_line3,'''');    
+          NEW.quhead_billtocity=COALESCE(NEW.quhead_billtocity,_p.addr_city,''''); 
+          NEW.quhead_billtostate=COALESCE(NEW.quhead_billtostate,_p.addr_state,'''');
+          NEW.quhead_billtozip=COALESCE(NEW.quhead_billtozip,_p.addr_postalcode,'''');
+          NEW.quhead_billtocountry=COALESCE(NEW.quhead_billtocountry,_p.addr_country,'''');   
         ELSE
-          -- Free form not allowed, we're going to put in the address regardless
-          NEW.quhead_billtoname=COALESCE(_p.cust_name,'');
-          NEW.quhead_billtoaddress1=COALESCE(_p.addr_line1,'');
-          NEW.quhead_billtoaddress2=COALESCE(_p.addr_line2,'');
-          NEW.quhead_billtoaddress3=COALESCE(_p.addr_line3,'');    
-          NEW.quhead_billtocity=COALESCE(_p.addr_city,''); 
-          NEW.quhead_billtostate=COALESCE(_p.addr_state,'');
-          NEW.quhead_billtozip=COALESCE(_p.addr_postalcode,'');
-          NEW.quhead_billtocountry=COALESCE(_p.addr_country,'');
+          -- Free form not allowed, we''re going to put in the address regardless
+          NEW.quhead_billtoname=COALESCE(_p.cust_name,'''');
+          NEW.quhead_billtoaddress1=COALESCE(_p.addr_line1,'''');
+          NEW.quhead_billtoaddress2=COALESCE(_p.addr_line2,'''');
+          NEW.quhead_billtoaddress3=COALESCE(_p.addr_line3,'''');    
+          NEW.quhead_billtocity=COALESCE(_p.addr_city,''''); 
+          NEW.quhead_billtostate=COALESCE(_p.addr_state,'''');
+          NEW.quhead_billtozip=COALESCE(_p.addr_postalcode,'''');
+          NEW.quhead_billtocountry=COALESCE(_p.addr_country,'''');
         END IF;
       END IF;
 
-      -- Now let's look at Shipto Address
-      -- If there's nothing in the address fields and there is a shipto id 
-      -- or there is a default address available, let's put in some shipto address data
-      IF ((TG_OP = 'INSERT') 
+      -- Now let''s look at Shipto Address
+      -- If there''s nothing in the address fields and there is a shipto id 
+      -- or there is a default address available, let''s put in some shipto address data
+      IF ((TG_OP = ''INSERT'') 
        AND NOT ((NEW.quhead_shipto_id IS NULL) AND NOT _p.cust_ffshipto)
        AND (NEW.quhead_shiptoname IS NULL)
        AND (NEW.quhead_shiptoaddress1 IS NULL)
@@ -203,14 +192,14 @@ BEGIN
         WHERE ((shipto_id=_shiptoId)
         AND (addr_id=shipto_addr_id));
 
-        NEW.quhead_shiptoname := COALESCE(_p.shipto_name,'');
-        NEW.quhead_shiptoaddress1 := COALESCE(_a.addr_line1,'');
-        NEW.quhead_shiptoaddress2 := COALESCE(_a.addr_line2,'');
-        NEW.quhead_shiptoaddress3 := COALESCE(_a.addr_line3,'');    
-        NEW.quhead_shiptocity := COALESCE(_a.addr_city,''); 
-        NEW.quhead_shiptostate := COALESCE(_a.addr_state,'');
-        NEW.quhead_shiptozipcode := COALESCE(_a.addr_postalcode,'');
-        NEW.quhead_shiptocountry := COALESCE(_a.addr_country,'');
+        NEW.quhead_shiptoname := COALESCE(_p.shipto_name,'''');
+        NEW.quhead_shiptoaddress1 := COALESCE(_a.addr_line1,'''');
+        NEW.quhead_shiptoaddress2 := COALESCE(_a.addr_line2,'''');
+        NEW.quhead_shiptoaddress3 := COALESCE(_a.addr_line3,'''');    
+        NEW.quhead_shiptocity := COALESCE(_a.addr_city,''''); 
+        NEW.quhead_shiptostate := COALESCE(_a.addr_state,'''');
+        NEW.quhead_shiptozipcode := COALESCE(_a.addr_postalcode,'''');
+        NEW.quhead_shiptocountry := COALESCE(_a.addr_country,'''');
       ELSE
         IF (_p.cust_ffshipto) THEN
           -- Use Address Save function to see if the new address entered matches
@@ -225,9 +214,9 @@ BEGIN
             NEW.quhead_shiptostate,
             NEW.quhead_shiptozipcode,
             NEW.quhead_shiptocountry,
-            'CHANGEONE') INTO _addrId;
+            ''CHANGEONE'') INTO _addrId;
           SELECT shipto_addr_id INTO _shiptoid FROM shiptoinfo WHERE (shipto_id=NEW.quhead_shipto_id);
-           -- If the address passed doesn't match shipto address, then it's something else
+           -- If the address passed doesn''t match shipto address, then it''s something else
            IF (_shiptoid <> _addrId) THEN
              NEW.quhead_shipto_id := NULL;
            END IF;
@@ -241,19 +230,19 @@ BEGIN
             LEFT OUTER JOIN addr ON (shipto_addr_id=addr_id)
             WHERE (shipto_id=NEW.quhead_shipto_id);
             IF (FOUND) THEN
-              -- Free form not allowed so we're going to make sure address matches Shipto data
-              NEW.quhead_shiptoname := COALESCE(_a.shipto_name,'');
-              NEW.quhead_shiptophone := COALESCE(_a.cntct_phone,'');
-              NEW.quhead_shiptoaddress1 := COALESCE(_a.addr_line1,'');
-              NEW.quhead_shiptoaddress2 := COALESCE(_a.addr_line2,'');
-              NEW.quhead_shiptoaddress3 := COALESCE(_a.addr_line3,'');    
-              NEW.quhead_shiptocity := COALESCE(_a.addr_city,''); 
-              NEW.quhead_shiptostate := COALESCE(_a.addr_state,'');
-              NEW.quhead_shiptozipcode := COALESCE(_a.addr_postalcode,'');
-              NEW.quhead_shiptocountry := COALESCE(_a.addr_country,''); 
+              -- Free form not allowed so we''re going to make sure address matches Shipto data
+              NEW.quhead_shiptoname := COALESCE(_a.shipto_name,'''');
+              NEW.quhead_shiptophone := COALESCE(_a.cntct_phone,'''');
+              NEW.quhead_shiptoaddress1 := COALESCE(_a.addr_line1,'''');
+              NEW.quhead_shiptoaddress2 := COALESCE(_a.addr_line2,'''');
+              NEW.quhead_shiptoaddress3 := COALESCE(_a.addr_line3,'''');    
+              NEW.quhead_shiptocity := COALESCE(_a.addr_city,''''); 
+              NEW.quhead_shiptostate := COALESCE(_a.addr_state,'''');
+              NEW.quhead_shiptozipcode := COALESCE(_a.addr_postalcode,'''');
+              NEW.quhead_shiptocountry := COALESCE(_a.addr_country,''''); 
             ELSE
-              -- If no shipto data and free form not allowed, this won't work
-              RAISE EXCEPTION 'Free form Shipto is not allowed on this Customer. You must supply a valid Shipto ID.';
+              -- If no shipto data and free form not allowed, this won''t work
+              RAISE EXCEPTION ''Free form Shipto is not allowed on this Customer. You must supply a valid Shipto ID.'';
             END IF;
           END IF;
         END IF;
@@ -261,44 +250,44 @@ BEGIN
     END IF;
   END IF;
 
-  IF ( SELECT (metric_value='t')
+  IF ( SELECT (metric_value=''t'')
        FROM metric
-       WHERE (metric_name='SalesOrderChangeLog') ) THEN
+       WHERE (metric_name=''SalesOrderChangeLog'') ) THEN
 
 --  Cache the cmnttype_id for ChangeLog
     SELECT cmnttype_id INTO _cmnttypeid
     FROM cmnttype
-    WHERE (cmnttype_name='ChangeLog');
+    WHERE (cmnttype_name=''ChangeLog'');
     IF (FOUND) THEN
-      IF (TG_OP = 'INSERT') THEN
-        PERFORM postComment(_cmnttypeid, 'Q', NEW.quhead_id, 'Created');
+      IF (TG_OP = ''INSERT'') THEN
+        PERFORM postComment(_cmnttypeid, ''Q'', NEW.quhead_id, ''Created'');
 
-      ELSIF (TG_OP = 'UPDATE') THEN
+      ELSIF (TG_OP = ''UPDATE'') THEN
 
         IF (OLD.quhead_terms_id <> NEW.quhead_terms_id) THEN
-          PERFORM postComment( _cmnttypeid, 'Q', NEW.quhead_id,
-                               ('Terms Changed from "' || oldterms.terms_code || '" to "' || newterms.terms_code || '"') )
+          PERFORM postComment( _cmnttypeid, ''Q'', NEW.quhead_id,
+                               (''Terms Changed from "'' || oldterms.terms_code || ''" to "'' || newterms.terms_code || ''"'') )
           FROM terms AS oldterms, terms AS newterms
           WHERE ( (oldterms.terms_id=OLD.quhead_terms_id)
            AND (newterms.terms_id=NEW.quhead_terms_id) );
         END IF;
 
-      ELSIF (TG_OP = 'DELETE') THEN
+      ELSIF (TG_OP = ''DELETE'') THEN
         DELETE FROM comment
-        WHERE ( (comment_source='Q')
+        WHERE ( (comment_source=''Q'')
          AND (comment_source_id=OLD.quhead_id) );
       END IF;
     END IF;
   END IF;
 
-  IF (TG_OP = 'DELETE') THEN
+  IF (TG_OP = ''DELETE'') THEN
     RETURN OLD;
   ELSE
     RETURN NEW;
   END IF;
 
 END;
-$$ LANGUAGE 'plpgsql';
+' LANGUAGE 'plpgsql';
 
 DROP TRIGGER quheadtrigger ON quhead;
 CREATE TRIGGER quheadtrigger

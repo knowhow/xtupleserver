@@ -16,10 +16,15 @@ BEGIN
            WHERE crmacctsel_src_crmacct_id=crmacctsel_dest_crmacct_id
              AND crmacctsel_dest_crmacct_id=pTargetId) THEN
     IF (NOT _purge) THEN
-      INSERT INTO mrgundo
+      INSERT INTO mrgundo (
+             mrgundo_schema,      mrgundo_table,
+             mrgundo_pkey_col,    mrgundo_pkey_id,
+             mrgundo_col,         mrgundo_value,      mrgundo_type,
+             mrgundo_base_schema, mrgundo_base_table, mrgundo_base_id)
       SELECT 'public', 'crmacct', crmacct_id,
              'public', 'crmacct', 'crmacct_id', crmacct_id,
-             'crmacct_notes', crmacct_notes, 'text'
+             'crmacct_notes', crmacct_notes, 'text',
+             'public', 'crmacct', crmacct_id
         FROM crmacct
        WHERE (crmacct_id=pTargetId);
     END IF;

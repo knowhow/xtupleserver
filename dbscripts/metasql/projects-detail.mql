@@ -17,7 +17,7 @@ SELECT prj_id AS id, prj_number, prj_name,
   'qty' AS budget_hrs_xtnumericrole, 
   'qty' AS actual_hrs_xtnumericrole, 
   'qty' AS balance_hrs_xtnumericrole 
-FROM prj
+FROM prj()
 LEFT OUTER JOIN prjtask ON (prj_id=prjtask_prj_id)
 WHERE (true)
 <? if exists("username") ?>

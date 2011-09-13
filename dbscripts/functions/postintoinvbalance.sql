@@ -29,14 +29,15 @@ BEGIN
     END IF;
 
 --  If cycle count, then we need to reference balance which needs to be accurate
-    IF (_r.invhist_transtype = 'CC') THEN
-      PERFORM forwardupdateitemsite(_r.invhist_itemsite_id);
-    END IF;
+--    IF (_r.invhist_transtype = 'CC') THEN
+--      PERFORM forwardupdateitemsite(_r.invhist_itemsite_id);
+--    END IF;
 
 --  Try to find an existing invbal
     SELECT 
       invbal_id, 
-      CASE WHEN (_r.invhist_transtype != 'CC') THEN _r.invhist_invqty ELSE _r.invhist_invqty - invbal_qoh_ending END 
+--      CASE WHEN (_r.invhist_transtype != 'CC') THEN _r.invhist_invqty ELSE _r.invhist_invqty - invbal_qoh_ending END 
+      _r.invhist_invqty
       INTO _invbalid, _qty
     FROM invbal
     WHERE ( (invbal_period_id=_r.period_id)

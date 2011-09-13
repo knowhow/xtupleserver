@@ -104,10 +104,10 @@ BEGIN
           PERFORM postComment( _cmnttypeid, 'I', NEW.item_id,
                                ( 'Inventory UOM Changed from "' ||
                                  (SELECT uom_name FROM uom WHERE uom_id=OLD.item_inv_uom_id) ||
-                                 '" (' || OLD.item_inv_uom_id ||
+                                 '" (' || CAST(OLD.item_inv_uom_id AS TEXT) ||
                                  ') to "' ||
                                  (SELECT uom_name FROM uom WHERE uom_id=NEW.item_inv_uom_id) ||
-                                 '" (' || NEW.item_inv_uom_id || ')' ) );
+                                 '" (' || CAST(NEW.item_inv_uom_id AS TEXT) || ')' ) );
         END IF;
 
         IF (OLD.item_sold <> NEW.item_sold) THEN
@@ -162,40 +162,40 @@ BEGIN
           PERFORM postComment( _cmnttypeid, 'I', NEW.item_id,
                                ( 'Price UOM Changed from "' ||
                                  (SELECT uom_name FROM uom WHERE uom_id=OLD.item_price_uom_id) ||
-                                 '" (' || OLD.item_price_uom_id ||
+                                 '" (' || CAST(OLD.item_price_uom_id AS TEXT) ||
                                  ') to "' ||
                                  (SELECT uom_name FROM uom WHERE uom_id=NEW.item_price_uom_id) ||
-                                 '" (' || NEW.item_price_uom_id || ')' ) );
+                                 '" (' || CAST(NEW.item_price_uom_id AS TEXT) || ')' ) );
         END IF;
 
         IF (OLD.item_classcode_id <> NEW.item_classcode_id) THEN
           PERFORM postComment( _cmnttypeid, 'I', NEW.item_id,
                                ( 'Class Code Changed from "' ||
                                  (SELECT classcode_code || '-' || classcode_descrip FROM classcode WHERE classcode_id=OLD.item_classcode_id) ||
-                                 '" (' || OLD.item_classcode_id ||
+                                 '" (' || CAST(OLD.item_classcode_id AS TEXT) ||
                                  ') to "' ||
                                  (SELECT classcode_code || '-' || classcode_descrip FROM classcode WHERE classcode_id=NEW.item_classcode_id) ||
-                                 '" (' || NEW.item_classcode_id || ')' ) );
+                                 '" (' || CAST(NEW.item_classcode_id AS TEXT) || ')' ) );
         END IF;
 
         IF (OLD.item_freightclass_id <> NEW.item_freightclass_id) THEN
           PERFORM postComment( _cmnttypeid, 'I', NEW.item_id,
                                ( 'Freight Class Changed from "' ||
                                  (SELECT freightclass_code || '-' || freightclass_descrip FROM freightclass WHERE freightclass_id=OLD.item_freightclass_id) ||
-                                 '" (' || OLD.item_freightclass_id ||
+                                 '" (' || CAST(OLD.item_freightclass_id AS TEXT) ||
                                  ') to "' ||
                                  (SELECT freightclass_code || '-' || freightclass_descrip FROM freightclass WHERE freightclass_id=NEW.item_freightclass_id) ||
-                                 '" (' || NEW.item_freightclass_id || ')' ) );
+                                 '" (' || CAST(NEW.item_freightclass_id AS TEXT) || ')' ) );
         END IF;
 
         IF (OLD.item_prodcat_id <> NEW.item_prodcat_id) THEN
           PERFORM postComment( _cmnttypeid, 'I', NEW.item_id,
                                ( 'Product Category Changed from "' ||
                                  (SELECT prodcat_code || '-' || prodcat_descrip FROM prodcat WHERE prodcat_id=OLD.item_prodcat_id) ||
-                                 '" (' || OLD.item_prodcat_id ||
+                                 '" (' || CAST(OLD.item_prodcat_id AS TEXT) ||
                                  ') to "' ||
                                  (SELECT prodcat_code || '-' || prodcat_descrip FROM prodcat WHERE prodcat_id=NEW.item_prodcat_id) ||
-                                 '" (' || NEW.item_prodcat_id || ')' ) );
+                                 '" (' || CAST(NEW.item_prodcat_id AS TEXT) || ')' ) );
         END IF;
 
         IF (OLD.item_upccode <> NEW.item_upccode) THEN

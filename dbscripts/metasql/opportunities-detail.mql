@@ -34,7 +34,7 @@ SELECT DISTINCT ON (incdtpriority_order, ophead_target_date, ophead_name, ophead
 <? foreach("char_id_date_list") ?>
   , charass_alias<? literal("char_id_date_list") ?>.charass_value::date AS char<? literal("char_id_date_list") ?>
 <? endforeach ?>
-FROM ophead
+FROM ophead()
   LEFT OUTER JOIN incdtpriority ON (ophead_priority_id=incdtpriority_id)
   LEFT OUTER JOIN crmacct ON (ophead_crmacct_id=crmacct_id)
   LEFT OUTER JOIN opstage ON (ophead_opstage_id=opstage_id)
@@ -86,7 +86,7 @@ WHERE((true)
    AND (optype_name ~ <? value("optype_pattern") ?>)
 <? endif ?>
 <? if exists("username") ?>
-   AND (ophead_username=<? value("username") ?> OR ophead_owner_username=<? value("username") ?>)
+   AND (<? value("username") ?> IN (ophead_username, ophead_owner_username))
 <? endif ?>
 <? if exists("assigned_username") ?>
    AND (ophead_username=<? value("assigned_username") ?>)
