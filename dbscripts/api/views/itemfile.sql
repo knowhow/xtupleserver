@@ -1,8 +1,6 @@
-BEGIN;
-
 -- Item File
 
-DROP VIEW api.itemfile;
+SELECT dropIfExists('VIEW', 'itemfile', 'api');
 CREATE VIEW api.itemfile
 AS 
    SELECT 
@@ -51,5 +49,3 @@ CREATE OR REPLACE RULE "_DELETE" AS
   AND (url_source='I')
   AND (url_title=OLD.title)
   AND (url_url=OLD.url));
-
-COMMIT;

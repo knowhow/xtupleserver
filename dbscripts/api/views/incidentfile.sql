@@ -1,5 +1,3 @@
-BEGIN;
-
 -- Account File
 
 SELECT dropifexists('VIEW', 'incidentfile','API');
@@ -9,7 +7,7 @@ AS
      incdt_number AS incident_number,
      url_title AS title,
      url_url AS url
-   FROM incdt, url
+   FROM incdt(), url
    WHERE ((incdt_id=url_source_id)
    AND (url_source='INCDT'));
 
@@ -51,5 +49,3 @@ CREATE OR REPLACE RULE "_DELETE" AS
   AND (url_source='INCDT')
   AND (url_title=OLD.title)
   AND (url_url=OLD.url));
-
-COMMIT;

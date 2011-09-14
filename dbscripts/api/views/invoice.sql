@@ -1,5 +1,3 @@
-BEGIN;
-
 SELECT dropIfExists('VIEW', 'invoice', 'api', true);
 CREATE OR REPLACE VIEW api.invoice
 AS
@@ -253,5 +251,3 @@ CREATE OR REPLACE RULE "_DELETE" AS
 	SELECT deleteInvoice(invchead_id)
 	FROM invchead
 	WHERE invchead_invcnumber = OLD.invoice_number AND invchead_posted = FALSE;
-
-COMMIT;

@@ -1,5 +1,3 @@
-BEGIN;
-
 -- Item Site
 
 SELECT dropIfExists('VIEW', 'itemsite', 'api');
@@ -316,5 +314,3 @@ CREATE OR REPLACE RULE "_DELETE" AS
     ON DELETE TO api.itemsite DO INSTEAD
 
    SELECT deleteitemsite(getItemSiteId(OLD.site,OLD.item_number));
-
-COMMIT;

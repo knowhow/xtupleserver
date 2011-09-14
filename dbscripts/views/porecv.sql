@@ -1,4 +1,3 @@
-BEGIN;
 SELECT dropIfExists('VIEW', 'porecv');
 CREATE VIEW porecv AS
   SELECT       recv_id                 AS porecv_id,
@@ -39,5 +38,3 @@ CREATE VIEW porecv AS
 
 REVOKE ALL ON TABLE porecv FROM PUBLIC;
 GRANT  ALL ON TABLE porecv TO GROUP xtrole;
-COMMIT;
-

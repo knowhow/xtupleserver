@@ -1,8 +1,6 @@
-BEGIN;
-
 -- Address Comment
 
-DROP VIEW api.addresscomment;
+SELECT dropIfExists('VIEW', 'addresscomment', 'api');
 CREATE VIEW api.addresscomment
 AS 
    SELECT 
@@ -45,5 +43,3 @@ CREATE OR REPLACE RULE "_UPDATE" AS
 
 CREATE OR REPLACE RULE "_DELETE" AS
     ON DELETE TO api.addresscomment DO INSTEAD NOTHING;
-
-COMMIT;

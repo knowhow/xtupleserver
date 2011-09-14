@@ -1,7 +1,5 @@
-BEGIN;
-
 -- Sales Order Line Item Comment
-DROP VIEW api.saleslinecomment;
+SELECT dropIfExists('VIEW', 'saleslinecomment', 'api');
 CREATE VIEW api.saleslinecomment
 AS 
    SELECT 
@@ -52,5 +50,3 @@ CREATE OR REPLACE RULE "_UPDATE" AS
 
 CREATE OR REPLACE RULE "_DELETE" AS
     ON DELETE TO api.saleslinecomment DO INSTEAD NOTHING;
-
-COMMIT;

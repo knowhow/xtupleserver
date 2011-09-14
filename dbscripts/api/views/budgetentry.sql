@@ -1,6 +1,6 @@
 -- View: api.budgetentry
 
---DROP VIEW api.budgetentry
+SELECT dropIfExists('VIEW', 'budgetentry', 'api');
 
 
 CREATE OR REPLACE VIEW api.budgetentry AS

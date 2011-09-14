@@ -1,8 +1,6 @@
-BEGIN;
-
 -- Item Substitute
 
-DROP VIEW api.itemsubstitute;
+SELECT dropIfExists('VIEW', 'itemsubstitute', 'api');
 CREATE VIEW api.itemsubstitute
 AS 
    SELECT 
@@ -48,5 +46,3 @@ CREATE OR REPLACE RULE "_DELETE" AS
   DELETE FROM itemsub
   WHERE  ((itemsub_parent_item_id=getItemId(OLD.root_item_number))
   AND (itemsub_sub_item_id=getItemId(OLD.substitute_item_number)));
-
-COMMIT;

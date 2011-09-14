@@ -1,7 +1,3 @@
---BEGIN;
-
--- View: api.salescredit
-
 SELECT dropIfExists('VIEW', 'salescredit', 'api');
 
 CREATE OR REPLACE VIEW api.salescredit AS 
@@ -17,18 +13,9 @@ CREATE OR REPLACE VIEW api.salescredit AS
 GRANT ALL ON TABLE api.salescredit TO xtrole;
 COMMENT ON VIEW api.salescredit IS 'Payments (credit memos) pre-applied to sales orders';
 
--- Rules
-
--- Rule: ""_INSERT" ON api.salescredit"
-
--- DROP RULE "_INSERT" ON api.salescredit;
-
 CREATE OR REPLACE RULE "_INSERT" AS
     ON INSERT TO api.salescredit DO INSTEAD
     INSERT INTO aropenalloc VALUES ( 
     getaropenid( new.customer_number, 'C', new.cm_number ),
     'S', getcoheadid(new.so_number),
     new.amount, getcurrid(new.currency) );
-
---COMMIT;
-

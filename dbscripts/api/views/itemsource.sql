@@ -1,5 +1,3 @@
-BEGIN;
-
 -- Item Source
 
 SELECT dropIfExists('VIEW', 'itemsource', 'api');
@@ -102,5 +100,3 @@ CREATE OR REPLACE RULE "_DELETE" AS
   AND (itemsrc.itemsrc_vend_item_number=old.vendor_item_number)
   AND (itemsrc.itemsrc_manuf_name=old.manufacturer_name)
   AND (itemsrc.itemsrc_manuf_item_number=old.manufacturer_item_number));
-
-COMMIT;

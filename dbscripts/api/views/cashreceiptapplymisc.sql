@@ -1,5 +1,3 @@
-BEGIN;
-
 SELECT dropIfExists('VIEW', 'cashreceiptapplymisc', 'api');
 CREATE OR REPLACE VIEW api.cashreceiptapplymisc AS
   SELECT
@@ -153,5 +151,3 @@ CREATE OR REPLACE RULE "_DELETE" AS
                        END,
                        OLD.check_document_number))
       AND   (cashrcptmisc_accnt_id=getGlAccntId(OLD.account)) );
-
-COMMIT;

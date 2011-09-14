@@ -1,5 +1,3 @@
-BEGIN;
-
 SELECT dropIfExists('VIEW', 'cashreceiptapply', 'api');
 CREATE OR REPLACE VIEW api.cashreceiptapply AS
   SELECT
@@ -163,5 +161,3 @@ CREATE OR REPLACE RULE "_DELETE" AS
                        OLD.customer_number,
                        OLD.doc_type,
                        OLD.doc_number)) );
-
-COMMIT;

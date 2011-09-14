@@ -1,15 +1,13 @@
-BEGIN;
-
 -- Account Characteristic
 
-DROP VIEW api.accountchar;
+SELECT dropIfExists('VIEW', 'accountchar', 'api');
 CREATE VIEW api.accountchar
 AS 
    SELECT 
      crmacct_number::varchar AS account_number,
      char_name::varchar AS characteristic,
      charass_value AS value
-   FROM crmacct, char, charass
+   FROM crmacct(), char, charass
    WHERE (('CRMACCT'=charass_target_type)
    AND (crmacct_id=charass_target_id)
    AND (charass_char_id=char_id));
@@ -52,5 +50,3 @@ CREATE OR REPLACE RULE "_DELETE" AS
   WHERE ((charass_target_type='CRMACCT')
   AND (charass_target_id=getCrmAcctId(OLD.account_number))
   AND (charass_char_id=getCharId(OLD.characteristic,'CRMACCT')));
-
-COMMIT;

@@ -1,5 +1,3 @@
-BEGIN;
-
 --Vendor Type View
 
 SELECT dropIfExists('VIEW', 'vendortype', 'api');
@@ -38,5 +36,3 @@ CREATE OR REPLACE RULE "_DELETE" AS
 ON DELETE TO api.vendortype DO INSTEAD
 
 SELECT deleteVendorType(getVendTypeId(OLD.code));
-
-COMMIT;

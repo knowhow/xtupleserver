@@ -11,7 +11,7 @@ AS
      comment_date AS date,
      comment_user AS username,
      comment_text AS text
-   FROM cntct, cmnttype, comment
+   FROM cntct(), cmnttype, comment
    WHERE ((comment_source='T')
    AND (comment_source_id=cntct_id)
    AND (comment_cmnttype_id=cmnttype_id));

@@ -1,8 +1,6 @@
-BEGIN;
-
   --Contact View
 
-  DROP VIEW api.contact;
+SELECT dropIfExists('VIEW', 'contact', 'api');
   CREATE OR REPLACE VIEW api.contact AS
  
   SELECT 
@@ -33,7 +31,7 @@ BEGIN;
     cntct_notes AS notes, 
     ''::TEXT AS address_change
   FROM
-    cntct 
+    cntct() 
       LEFT OUTER JOIN addr ON (cntct_addr_id=addr_id)
       LEFT OUTER JOIN crmacct ON (cntct_crmacct_id=crmacct_id);
 
@@ -116,5 +114,3 @@ CREATE OR REPLACE RULE "_DELETE" AS
     ON DELETE TO api.contact DO INSTEAD
 
 SELECT deleteContact(getCntctId(OLD.contact_number));
-
-COMMIT;

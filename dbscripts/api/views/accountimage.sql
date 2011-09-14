@@ -1,5 +1,3 @@
-BEGIN;
-
 -- Account Image
 
 SELECT dropifexists('VIEW', 'accountimage','API');
@@ -8,7 +6,7 @@ AS
    SELECT 
      crmacct_number AS account_number,
      image_name AS image_name
-   FROM crmacct, imageass, image
+   FROM crmacct(), imageass, image
    WHERE ((crmacct_id=imageass_source_id)
    AND (imageass_source='CRMA')
    AND (imageass_image_id=image_id));
@@ -43,5 +41,3 @@ CREATE OR REPLACE RULE "_DELETE" AS
   WHERE ((imageass_source_id=getCrmAcctId(OLD.account_number))
   AND (imageass_source='CRMA')
   AND (imageass_image_id=getImageId(OLD.image_name)));
-
-COMMIT;

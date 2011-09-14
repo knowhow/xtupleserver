@@ -1,5 +1,3 @@
-BEGIN;
-
 -- Simple Journal Entry
 SELECT dropifexists('view','misccounttag','api');
 CREATE VIEW api.misccounttag
@@ -39,5 +37,3 @@ CREATE OR REPLACE RULE "_DELETE" AS
     ON DELETE TO api.misccounttag DO INSTEAD
 
   NOTHING;
-
-COMMIT;

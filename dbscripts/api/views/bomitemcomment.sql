@@ -1,8 +1,6 @@
-BEGIN;
-
 -- Bill of Material Item Comment
 
-DROP VIEW api.bomitemcomment;
+SELECT dropIfExists('VIEW', 'bomitemcomment', 'api');
 CREATE VIEW api.bomitemcomment
 AS 
    SELECT 
@@ -50,5 +48,3 @@ CREATE OR REPLACE RULE "_UPDATE" AS
 
 CREATE OR REPLACE RULE "_DELETE" AS
     ON DELETE TO api.bomitemcomment DO INSTEAD NOTHING;
-
-COMMIT;

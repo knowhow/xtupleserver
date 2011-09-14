@@ -1,8 +1,6 @@
-BEGIN;
-
 -- Pricing Schedule Item Characteristic
 
-DROP VIEW api.pricingscheduleitemchar;
+SELECT dropIfExists('VIEW', 'pricingscheduleitemchar', 'api');
 CREATE VIEW api.pricingscheduleitemchar
 AS 
    SELECT 
@@ -58,5 +56,3 @@ CREATE OR REPLACE RULE "_DELETE" AS
   WHERE ((ipsitemchar_ipsitem_id=getIpsitemId(OLD.pricing_schedule,OLD.item_number,OLD.qty_break,OLD.qty_uom,OLD.price_uom))
   AND (ipsitemchar_char_id=getCharId(OLD.characteristic,'I'))
   AND (ipsitemchar_value=OLD.value));
-
-COMMIT;

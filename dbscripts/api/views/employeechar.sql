@@ -1,5 +1,3 @@
-BEGIN;
-
 SELECT dropIfExists('VIEW', 'employeechar', 'api');
 CREATE VIEW api.employeechar
 AS
@@ -50,5 +48,3 @@ CREATE OR REPLACE RULE "_DELETE" AS
   WHERE ((charass_target_type='EMP')
   AND (charass_target_id=getEmpId(OLD.employee_code))
   AND (charass_char_id=getCharId(OLD.characteristic,'EMP')));
-
-COMMIT;

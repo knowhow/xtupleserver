@@ -1,5 +1,3 @@
-BEGIN;
-
 -- Project
 SELECT dropIfExists('VIEW', 'project', 'api');
 CREATE VIEW api.project
@@ -27,7 +25,7 @@ AS
      prj_assigned_date AS assigned,
      prj_start_date AS started,
      prj_completed_date AS completed
-   FROM prj;
+   FROM prj();
 
 GRANT ALL ON TABLE api.project TO xtrole;
 COMMENT ON VIEW api.project IS 'Project';
@@ -105,6 +103,3 @@ CREATE OR REPLACE RULE "_DELETE" AS
     ON DELETE TO api.project DO INSTEAD
 
   SELECT deleteproject (getPrjId(OLD.number));
-
-COMMIT;
-

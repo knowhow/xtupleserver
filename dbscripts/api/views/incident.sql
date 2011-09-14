@@ -1,5 +1,3 @@
-BEGIN;
-
 -- Incident View
 
 SELECT dropIfExists('VIEW', 'incident', 'api');
@@ -56,7 +54,7 @@ CREATE OR REPLACE VIEW api.incident AS
         ''
     END AS ar_doc_type,
     aropen_docnumber AS ar_doc_number
-  FROM incdt
+  FROM incdt()
      LEFT OUTER JOIN incdtcat ON (incdtcat_id=incdt_incdtcat_id)
      LEFT OUTER JOIN crmacct ON (crmacct_id=incdt_crmacct_id)
      LEFT OUTER JOIN incdtseverity ON (incdtseverity_id=incdt_incdtseverity_id)
@@ -192,5 +190,3 @@ CREATE OR REPLACE RULE "_DELETE" AS
     ON DELETE TO api.incident DO INSTEAD
 
   NOTHING;
-
-COMMIT;

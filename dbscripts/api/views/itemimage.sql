@@ -1,8 +1,6 @@
-BEGIN;
-
 -- Item Image
 
-DROP VIEW api.itemimage;
+SELECT dropIfExists('VIEW', 'itemimage', 'api');
 CREATE VIEW api.itemimage
 AS 
    SELECT 
@@ -77,5 +75,3 @@ CREATE OR REPLACE RULE "_DELETE" AS
   WHERE ((imageass_source_id=getItemId(OLD.item_number))
   AND (imageass_source='I')
   AND (imageass_image_id=getImageId(OLD.image_name)));
-
-COMMIT;

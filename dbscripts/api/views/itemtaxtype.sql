@@ -1,5 +1,3 @@
-BEGIN;
-
 -- Item Tax Type
 
 SELECT dropIfExists('VIEW', 'itemtaxtype', 'api', true);
@@ -71,5 +69,3 @@ CREATE OR REPLACE RULE "_DELETE" AS
             ELSE
               itemtax_taxzone_id=getTaxZoneId(OLD.tax_zone) END)
   AND (itemtax_taxtype_id=getTaxTypeId(OLD.tax_type)));
-
-COMMIT;

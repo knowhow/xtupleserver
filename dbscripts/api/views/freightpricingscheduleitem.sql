@@ -1,5 +1,3 @@
-BEGIN;
-
 -- Freight Pricing Schedule Item
 
 SELECT dropIfExists('VIEW', 'freightpricingscheduleitem', 'api');
@@ -94,5 +92,3 @@ CREATE OR REPLACE RULE "_DELETE" AS
           (ipsfreight_freightclass_id = CASE WHEN (OLD.freight_class = 'Any') THEN 0 ELSE getFreightClassId(OLD.freight_class) END)
     AND  (((ipsfreight_shipvia IS NULL) AND (OLD.ship_via = 'Any'))) OR
           (ipsfreight_shipvia = OLD.ship_via) );
-
-COMMIT;

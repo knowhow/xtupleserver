@@ -1,5 +1,3 @@
-BEGIN;
-
 -- Account Comment
 
 DROP VIEW api.accountcomment;
@@ -11,7 +9,7 @@ AS
      comment_date AS date,
      comment_user AS username,
      comment_text AS text
-   FROM crmacct, cmnttype, comment
+   FROM crmacct(), cmnttype, comment
    WHERE ((comment_source='CRMA')
    AND (comment_source_id=crmacct_id)
    AND (comment_cmnttype_id=cmnttype_id));
@@ -45,5 +43,3 @@ CREATE OR REPLACE RULE "_UPDATE" AS
 
 CREATE OR REPLACE RULE "_DELETE" AS
     ON DELETE TO api.accountcomment DO INSTEAD NOTHING;
-
-COMMIT;

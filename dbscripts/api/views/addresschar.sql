@@ -1,8 +1,6 @@
-BEGIN;
-
 -- Address Characteristic
 
-DROP VIEW api.addresschar;
+SELECT dropIfExists('VIEW', 'addresschar', 'api');
 CREATE VIEW api.addresschar
 AS 
    SELECT 
@@ -52,5 +50,3 @@ CREATE OR REPLACE RULE "_DELETE" AS
   WHERE ((charass_target_type='ADDR')
   AND (charass_target_id=getAddrId(OLD.address_number))
   AND (charass_char_id=getCharId(OLD.characteristic,'ADDR')));
-
-COMMIT;

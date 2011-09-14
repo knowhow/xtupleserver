@@ -1,5 +1,3 @@
-BEGIN;
-
 -- Sales Order Line
 CREATE OR REPLACE VIEW api.salesline
 AS 
@@ -117,6 +115,3 @@ CREATE OR REPLACE RULE "_DELETE" AS
   WHERE ((coitem_cohead_id=getCoheadId(OLD.order_number))
   AND (coitem_linenumber::varchar=OLD.line_number)
   AND (coitem_subnumber=0));
-
-COMMIT;
-

@@ -1,5 +1,3 @@
-BEGIN;
-
    CREATE OR REPLACE VIEW api.armemo AS
     SELECT cust_number AS customer_number,
            aropen_docdate AS document_date,
@@ -118,7 +116,3 @@ CREATE OR REPLACE RULE "_DELETE" AS
   ON DELETE TO api.armemo DO INSTEAD
 
     NOTHING;
-
-COMMIT;
-
-

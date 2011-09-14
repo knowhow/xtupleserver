@@ -121,7 +121,7 @@ BEGIN
 		crmacct_name,
 		addr.*,
 		0 AS cntctdup_level
-             FROM cntct
+             FROM cntct()
                LEFT OUTER JOIN crmacct ON (cntct_crmacct_id=crmacct_id) 
                LEFT OUTER JOIN addr ON (cntct_addr_id=addr_id) 
 	     WHERE ';
@@ -261,7 +261,7 @@ BEGIN
                  crmacct_name,
                  addr.*,
                  1 AS cntctdup_level
-               FROM cntct
+               FROM cntct()
                  LEFT OUTER JOIN crmacct ON (cntct_crmacct_id=crmacct_id) 
                  LEFT OUTER JOIN addr ON (cntct_addr_id=addr_id)
                WHERE (true) ';

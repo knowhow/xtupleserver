@@ -1,5 +1,3 @@
-BEGIN;
-
 -- SalesOrder
 SELECT dropIfExists('VIEW', 'salesorder', 'api');
 
@@ -387,6 +385,3 @@ CREATE OR REPLACE RULE "_DELETE" AS
   SELECT deleteso(cohead_id,OLD.order_number)
   FROM cohead
   WHERE (cohead_number=OLD.order_number);
-
-COMMIT;
-

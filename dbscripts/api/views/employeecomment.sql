@@ -1,5 +1,3 @@
-BEGIN;
-
 SELECT dropIfExists('VIEW', 'employeecomment', 'api');
 CREATE VIEW api.employeecomment
 AS 
@@ -43,5 +41,3 @@ CREATE OR REPLACE RULE "_UPDATE" AS
 
 CREATE OR REPLACE RULE "_DELETE" AS
     ON DELETE TO api.employeecomment DO INSTEAD NOTHING;
-
-COMMIT;

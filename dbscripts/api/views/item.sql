@@ -1,5 +1,3 @@
-BEGIN;
-
   --Item View
 
   SELECT dropIfExists('VIEW', 'item', 'api');
@@ -200,6 +198,3 @@ COMMENT ON VIEW api.item IS 'Item';
     ON DELETE TO api.item DO INSTEAD
 
     SELECT deleteitem(getItemId(OLD.item_number));
-
-COMMIT;
-

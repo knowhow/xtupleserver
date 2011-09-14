@@ -1,8 +1,6 @@
-BEGIN;
-
 -- Customer Credit Card
 
-DROP VIEW api.custcreditcard;
+SELECT dropIfExists('VIEW', 'custcreditcard', 'api');
 CREATE VIEW api.custcreditcard
 AS 
    SELECT 
@@ -64,5 +62,3 @@ CREATE OR REPLACE RULE "_UPDATE" AS
 
 CREATE OR REPLACE RULE "_DELETE" AS
     ON DELETE TO api.custcreditcard DO INSTEAD NOTHING;
-
-COMMIT;

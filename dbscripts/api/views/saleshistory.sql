@@ -1,5 +1,3 @@
-BEGIN;
-
   --Sales History View
 
   SELECT dropIfExists('VIEW', 'saleshistory', 'api');
@@ -200,6 +198,3 @@ COMMENT ON VIEW api.saleshistory IS 'Sales History';
   ON DELETE TO api.saleshistory DO INSTEAD
 
   NOTHING;
-
-COMMIT;
-

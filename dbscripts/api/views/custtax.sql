@@ -1,8 +1,6 @@
-BEGIN;
-
 -- Customer Tax Registration
 
-DROP VIEW api.custtax;
+SELECT dropIfExists('VIEW', 'custtax', 'api');
 CREATE VIEW api.custtax
 AS 
    SELECT 
@@ -49,5 +47,3 @@ CREATE OR REPLACE RULE "_DELETE" AS
   WHERE  ((taxreg_rel_type='C')
   AND (taxreg_rel_id=getCustId(OLD.customer_number))
   AND (taxreg_taxauth_id=getTaxAuthID(OLD.tax_authority)));
-
-COMMIT;

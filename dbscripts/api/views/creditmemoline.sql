@@ -1,5 +1,3 @@
-BEGIN;
-
 SELECT dropIfExists('VIEW', 'creditmemoline', 'api', true);
 CREATE OR REPLACE VIEW api.creditmemoline AS
   SELECT cmhead_number AS memo_number,
@@ -154,6 +152,3 @@ CREATE OR REPLACE RULE "_DELETE" AS
     DELETE FROM cmitem
     WHERE ( (cmitem_cmhead_id=getCmheadId(OLD.memo_number, FALSE))
       AND   (cmitem_linenumber = OLD.line_number) );
-
-COMMIT;
-

@@ -1,5 +1,3 @@
-BEGIN;
-
 -- Customer Shipto
 
 SELECT dropIfExists('VIEW', 'custshipto', 'api', true);
@@ -216,5 +214,3 @@ CREATE OR REPLACE RULE "_DELETE" AS
     ON DELETE TO api.custshipto DO INSTEAD
 
   SELECT deleteShipto(getShiptoId(OLD.customer_number,OLD.shipto_number));
-
-COMMIT;

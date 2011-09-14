@@ -1,7 +1,5 @@
-BEGIN;
-
 -- Simple Journal Entry
-DROP VIEW api.journalentry;
+SELECT dropIfExists('VIEW', 'journalentry', 'api');
 CREATE VIEW api.journalentry
 AS 
    SELECT  
@@ -52,5 +50,3 @@ CREATE OR REPLACE RULE "_DELETE" AS
     ON DELETE TO api.journalentry DO INSTEAD
 
   NOTHING;
-
-COMMIT;

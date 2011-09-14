@@ -1,5 +1,3 @@
-BEGIN;
-
 SELECT dropIfExists('VIEW', 'cashreceipt', 'api');
 CREATE OR REPLACE VIEW api.cashreceipt AS
   SELECT
@@ -220,5 +218,3 @@ CREATE OR REPLACE RULE "_DELETE" AS
                            'O'
                        END,
                        OLD.check_document_number) );
-
-COMMIT;

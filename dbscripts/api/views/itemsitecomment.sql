@@ -1,5 +1,3 @@
-BEGIN;
-
 -- Item Site Comment
 
 SELECT dropIfExists('VIEW', 'itemsitecomment', 'api');
@@ -48,5 +46,3 @@ CREATE OR REPLACE RULE "_UPDATE" AS
 
 CREATE OR REPLACE RULE "_DELETE" AS
     ON DELETE TO api.itemsitecomment DO INSTEAD NOTHING;
-
-COMMIT;

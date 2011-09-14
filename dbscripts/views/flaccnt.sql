@@ -6,14 +6,14 @@ CREATE OR REPLACE VIEW flaccnt AS
     -1 AS prj_id
   FROM  flhead
     JOIN flitem ON (flhead_id=flitem_flhead_id)
-    JOIN accnt ON (flitem_accnt_id=accnt_id)
+    JOIN ONLY accnt ON (flitem_accnt_id=accnt_id)
   UNION ALL
   SELECT flhead_type, flitem.*, 
     accnt_id, accnt_type, accnt_company, accnt_profit, accnt_number,accnt_sub,
     -1 AS prj_id
   FROM  flhead
     JOIN flitem ON (flhead_id=flitem_flhead_id),
-    accnt	
+    ONLY accnt	
   WHERE ((flitem_accnt_id=-1)
     AND ((flitem_type='') OR (accnt_type=flitem_type))
     AND ((flitem_company='All') OR (accnt_company=flitem_company))

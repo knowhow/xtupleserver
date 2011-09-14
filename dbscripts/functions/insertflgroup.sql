@@ -208,7 +208,7 @@ BEGIN
                         AND (period_id IN  (SELECT * FROM getperiodid(pPeriodId,pInterval))))
                         ORDER BY flitem_id
                         ) AS flitem
-                   LEFT OUTER JOIN trialbal
+                   LEFT OUTER JOIN fltrialbal
                      ON ((trialbal_accnt_id=accnt_id)
                      AND (trialbal_period_id=period_id))
                    LEFT OUTER JOIN budget

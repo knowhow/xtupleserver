@@ -1,5 +1,3 @@
-BEGIN;
-
 -- Item Cost
 
 SELECT dropIfExists('VIEW', 'itemcost', 'api');
@@ -44,6 +42,4 @@ CREATE OR REPLACE RULE "_DELETE" AS
 
   SELECT deleteItemCost(getItemId(OLD.item_number),
                         getCostElemId(OLD.costing_element));
-
-COMMIT;
 

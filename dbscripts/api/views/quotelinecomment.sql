@@ -1,5 +1,3 @@
-BEGIN;
- 
 -- Quote Line Item Comment
 
 SELECT dropIfExists('VIEW', 'quotelinecomment', 'api');
@@ -48,5 +46,3 @@ CREATE OR REPLACE RULE "_UPDATE" AS
 
 CREATE OR REPLACE RULE "_DELETE" AS
     ON DELETE TO api.quotelinecomment DO INSTEAD NOTHING;
-
-COMMIT;

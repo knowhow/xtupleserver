@@ -1,5 +1,3 @@
-BEGIN;
-
 -- Customer Type Characteristic
 
 SELECT dropIfExists('VIEW', 'customertypechar', 'api');
@@ -54,5 +52,3 @@ CREATE OR REPLACE RULE "_DELETE" AS
   WHERE ((charass_target_type='CT')
   AND (charass_target_id=getCusttypeId(OLD.customer_type))
   AND (charass_char_id=getCharId(OLD.characteristic,'CT')));
-
-COMMIT;

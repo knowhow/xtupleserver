@@ -1,8 +1,6 @@
-BEGIN;
-
 -- Item Characteristic
 
-DROP VIEW api.itemchar;
+SELECT dropIfExists('VIEW', 'itemchar', 'api');
 CREATE VIEW api.itemchar
 AS 
    SELECT 
@@ -54,5 +52,3 @@ CREATE OR REPLACE RULE "_DELETE" AS
   WHERE ((charass_target_type='I')
   AND (charass_target_id=getItemId(OLD.item_number))
   AND (charass_char_id=getCharId(OLD.characteristic,'I')));
-
-COMMIT;

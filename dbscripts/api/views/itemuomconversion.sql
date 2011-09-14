@@ -1,8 +1,6 @@
-BEGIN;
-
 -- Item UOM Conversion
 
-DROP VIEW api.itemuomconversion;
+SELECT dropIfExists('VIEW', 'itemuomconversion', 'api');
 CREATE VIEW api.itemuomconversion
 AS 
    SELECT 
@@ -69,5 +67,3 @@ CREATE OR REPLACE RULE "_DELETE" AS
   AND (itemuomconv_to_uom_id=getUomId(OLD.per_uom)))
   OR ((itemuomconv_from_uom_id=getUomId(OLD.per_uom))
   AND (itemuomconv_to_uom_id=getUomId(OLD.uom)))));
-
-COMMIT;

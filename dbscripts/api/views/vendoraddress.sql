@@ -1,5 +1,3 @@
-BEGIN;
-
 --Vendor Address View
 
 SELECT dropIfExists('VIEW', 'vendoraddress', 'api');
@@ -145,5 +143,3 @@ CREATE OR REPLACE RULE "_DELETE" AS
     ON DELETE TO api.vendoraddress DO INSTEAD
 
 SELECT deletevendoraddress(getVendAddrId(OLD.vendor_number, OLD.vendor_address_number));
-
-COMMIT;

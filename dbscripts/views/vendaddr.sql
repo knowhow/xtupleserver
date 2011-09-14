@@ -1,5 +1,5 @@
 
-DROP VIEW vendaddr;
+SELECT dropIfExists('VIEW', 'vendaddr');
 CREATE VIEW vendaddr AS
   SELECT vendaddr_id, vendaddr_vend_id, vendaddr_code, vendaddr_name,
         m.addr_line1    AS vendaddr_address1,

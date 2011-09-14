@@ -1,5 +1,3 @@
-BEGIN;
- 
 -- Quote Line Characteristics
 
 SELECT dropIfExists('VIEW', 'quotelinechar', 'api');
@@ -66,5 +64,3 @@ AND (char_name=OLD.characteristic));
 
 CREATE OR REPLACE RULE "_DELETE" AS 
     ON DELETE TO api.quotelinechar DO INSTEAD NOTHING;
-
-COMMIT;

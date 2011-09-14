@@ -1,8 +1,6 @@
-BEGIN;
-
 -- Pricing Schedule
 
-DROP VIEW api.pricingschedule;
+SELECT dropIfExists('VIEW', 'pricingschedule', 'api');
 CREATE OR REPLACE VIEW api.pricingschedule 
 AS 
   SELECT 
@@ -81,5 +79,3 @@ CREATE OR REPLACE RULE "_DELETE" AS
     ON DELETE TO api.pricingschedule DO INSTEAD  
 
   DELETE FROM ipshead WHERE (old.name = ipshead_name);
-
-COMMIT;

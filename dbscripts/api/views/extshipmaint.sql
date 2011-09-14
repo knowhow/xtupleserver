@@ -1,5 +1,3 @@
-BEGIN;
-
   --External Shipping Maintenance View
 
   SELECT dropifexists('view', 'extshipmaint','api');
@@ -96,5 +94,3 @@ COMMENT ON VIEW api.extshipmaint IS 'External Shipping Maintenance';
   AND (shipdata_shiphead_number=OLD.shipment_number)
   AND (shipdata_shipper=OLD.shipper)
   AND (shipdata_cosmisc_packnum_tracknum=OLD.package_tracking_number));
-
-COMMIT;

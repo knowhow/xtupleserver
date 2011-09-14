@@ -1,5 +1,3 @@
-BEGIN;
-
 SELECT dropIfExists('VIEW', 'invoiceline', 'api', true);
 CREATE OR REPLACE VIEW api.invoiceline
 AS
@@ -211,5 +209,3 @@ CREATE OR REPLACE RULE "_DELETE" AS
 			AND invchead_posted = FALSE
 	);
 
-
-COMMIT;

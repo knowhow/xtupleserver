@@ -1,5 +1,3 @@
-BEGIN;
-
 --Sales Rep View
 
 SELECT dropIfExists('VIEW', 'salesrep', 'api');
@@ -52,5 +50,3 @@ CREATE OR REPLACE RULE "_DELETE" AS
 ON DELETE TO api.salesrep DO INSTEAD
 
 DELETE FROM salesrep WHERE (salesrep_number=OLD.number);
-
-COMMIT;

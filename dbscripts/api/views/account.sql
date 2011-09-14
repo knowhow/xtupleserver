@@ -1,7 +1,7 @@
 
   --Account View
 
-  DROP VIEW api.account;
+SELECT dropIfExists('VIEW', 'account', 'api');
   CREATE OR REPLACE VIEW api.account AS
  
   SELECT 
@@ -56,7 +56,7 @@
     (''::TEXT) AS secondary_contact_address_change,
     c.crmacct_notes AS notes
   FROM
-    crmacct c
+    crmacct() c
       LEFT OUTER JOIN crmacct p ON (c.crmacct_id=p.crmacct_parent_id)
       LEFT OUTER JOIN cntct pc ON (c.crmacct_cntct_id_1=pc.cntct_id)
       LEFT OUTER JOIN addr m ON (pc.cntct_addr_id=m.addr_id)

@@ -1,5 +1,4 @@
-
-DROP VIEW budget;
+SELECT dropIfExists('VIEW', 'budget');
 CREATE VIEW budget AS
   SELECT budgitem_id AS budget_id,
          budgitem_period_id AS budget_period_id,

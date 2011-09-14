@@ -1,5 +1,3 @@
-BEGIN;
-
   SELECT dropIfExists('VIEW', 'creditmemo', 'api', true);
   CREATE OR REPLACE VIEW api.creditmemo AS
     SELECT cmhead_number AS memo_number,
@@ -214,7 +212,3 @@ CREATE OR REPLACE RULE "_DELETE" AS
 	SELECT deleteCreditMemo(cmhead_id)
 	FROM cmhead
 	WHERE cmhead_number = OLD.memo_number AND cmhead_posted = FALSE;
-
-COMMIT;
-
-

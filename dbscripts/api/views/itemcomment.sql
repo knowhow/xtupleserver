@@ -1,8 +1,6 @@
-BEGIN;
-
 -- Item Comment
 
-DROP VIEW api.itemcomment;
+SELECT dropIfExists('VIEW', 'itemcomment', 'api');
 CREATE VIEW api.itemcomment
 AS 
    SELECT 
@@ -45,5 +43,3 @@ CREATE OR REPLACE RULE "_UPDATE" AS
 
 CREATE OR REPLACE RULE "_DELETE" AS
     ON DELETE TO api.itemcomment DO INSTEAD NOTHING;
-
-COMMIT;

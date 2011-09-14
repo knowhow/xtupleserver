@@ -1,5 +1,3 @@
-BEGIN;
-
 -- Item Source Price View
 
 SELECT dropIfExists('VIEW', 'itemsourceprice', 'api');
@@ -55,5 +53,3 @@ CREATE OR REPLACE RULE "_DELETE" AS
   DELETE FROM itemsrcp
   WHERE (itemsrcp_itemsrc_id=getItemSrcId(old.item_number,old.vendor)
   AND (itemsrcp_qtybreak=old.qty_break));
-
-COMMIT;

@@ -1,5 +1,3 @@
-BEGIN;
-
   --Customer Type View
 
   SELECT dropIfExists('VIEW', 'customertype', 'api');
@@ -42,5 +40,3 @@ COMMENT ON VIEW api.customertype IS 'Customer Type';
   ON DELETE TO api.customertype DO INSTEAD
 
   DELETE FROM custtype WHERE (custtype_code=OLD.code);
-
-COMMIT;

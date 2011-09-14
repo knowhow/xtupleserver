@@ -1,8 +1,6 @@
-BEGIN;
-
 -- Bill of Material Item Substitute
 
-DROP VIEW api.bomitemsubstitute;
+SELECT dropIfExists('VIEW', 'bomitemsubstitute', 'api');
 CREATE VIEW api.bomitemsubstitute
 AS 
    SELECT 
@@ -55,5 +53,3 @@ CREATE OR REPLACE RULE "_DELETE" AS
   DELETE FROM bomitemsub
   WHERE  ((bomitemsub_bomitem_id=OLD.bomitem_id)
   AND (bomitemsub_item_id=getItemId(OLD.substitute_item_number)));
-
-COMMIT;

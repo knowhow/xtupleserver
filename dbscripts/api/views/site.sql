@@ -1,5 +1,3 @@
-BEGIN;
-
   --Site (aka Warehouse) View
 
   SELECT dropIfExists('VIEW', 'site', 'api');
@@ -647,5 +645,3 @@ CREATE OR REPLACE RULE "_UPDATE" AS
            
 CREATE OR REPLACE RULE "_DELETE" AS 
     ON DELETE TO api.site DO NOTHING;
-
-COMMIT;

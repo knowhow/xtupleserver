@@ -1,7 +1,5 @@
-BEGIN;
-
 -- Sales Order Line Characteristics
-DROP VIEW api.saleslinechar;
+SELECT dropIfExists('VIEW', 'saleslinechar', 'api');
 CREATE VIEW api.saleslinechar
 AS 
 SELECT 
@@ -86,5 +84,3 @@ AND (char_name=OLD.characteristic));
 
 CREATE OR REPLACE RULE "_DELETE" AS 
     ON DELETE TO api.saleslinechar DO INSTEAD NOTHING;
-
-COMMIT;

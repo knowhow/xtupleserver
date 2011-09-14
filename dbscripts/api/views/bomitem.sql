@@ -1,5 +1,3 @@
-BEGIN;
-
   --Bill of Material Item View
 
   SELECT dropIfExists('VIEW', 'bomitem', 'api');
@@ -170,5 +168,3 @@ COMMENT ON VIEW api.bomitem IS 'Bill of Material Item';
     DELETE FROM bomitem
     WHERE ((bomitem_id = OLD.id)
     AND (fetchMetricBool('AllowBOMItemDelete')));
-
-COMMIT;

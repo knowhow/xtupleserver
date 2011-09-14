@@ -1,5 +1,3 @@
-BEGIN;
-
 -- Pricing Schedule Item
 
 SELECT dropIfExists('VIEW', 'pricingscheduleitem', 'api', true);
@@ -73,6 +71,3 @@ CREATE OR REPLACE RULE "_DELETE" AS
      WHEN (OLD.type = 'Product Category') THEN
        deleteIpsProdcat(getIpsProdcatId(OLD.pricing_schedule,OLD.product_category,OLD.qty_break))
    END AS result;
-
-
-COMMIT;

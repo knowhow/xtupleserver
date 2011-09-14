@@ -1,5 +1,3 @@
-BEGIN;
-
 CREATE OR REPLACE VIEW api.apmemo AS 
  SELECT vendinfo.vend_number AS vendor_number, apopen.apopen_docdate AS document_date, apopen.apopen_duedate AS due_date, 
         CASE
@@ -50,5 +48,3 @@ CREATE OR REPLACE RULE "_RETURN" AS
 
 CREATE OR REPLACE RULE "_DELETE" AS
     ON DELETE TO api.apmemo DO INSTEAD NOTHING;
-
-COMMIT;

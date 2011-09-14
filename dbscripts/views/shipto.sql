@@ -1,5 +1,5 @@
 
-DROP VIEW shipto;
+SELECT dropIfExists('VIEW', 'shipto');
 CREATE OR REPLACE VIEW shipto AS
   SELECT shipto_id, shipto_cust_id, shipto_name,
         m.addr_line1    AS shipto_address1,

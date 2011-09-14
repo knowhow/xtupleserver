@@ -1,5 +1,5 @@
 
-DROP VIEW warehous CASCADE;
+SELECT dropIfExists('VIEW', 'warehous');
 CREATE VIEW warehous AS
   SELECT warehous_id, warehous_code, warehous_descrip,
     m.addr_line1        AS warehous_addr1,

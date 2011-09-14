@@ -1,5 +1,3 @@
-BEGIN;
-
 -- Purchase Order Line Item Comment
 SELECT dropifexists('VIEW','purchaselinecomment','API');
 CREATE VIEW api.purchaselinecomment
@@ -51,5 +49,3 @@ CREATE OR REPLACE RULE "_UPDATE" AS
 
 CREATE OR REPLACE RULE "_DELETE" AS
     ON DELETE TO api.purchaselinecomment DO INSTEAD NOTHING;
-
-COMMIT;

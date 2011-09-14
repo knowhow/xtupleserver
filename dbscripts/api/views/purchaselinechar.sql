@@ -1,5 +1,3 @@
-BEGIN;
-
 -- Purchase Order Line Characteristics
 SELECT dropifexists('VIEW','purchaselinechar','API');
 CREATE VIEW api.purchaselinechar
@@ -72,5 +70,3 @@ AND (char_name=OLD.characteristic));
 
 CREATE OR REPLACE RULE "_DELETE" AS 
     ON DELETE TO api.purchaselinechar DO INSTEAD NOTHING;
-
-COMMIT;

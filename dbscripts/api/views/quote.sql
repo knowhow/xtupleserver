@@ -1,5 +1,3 @@
---BEGIN;
- 
 -- Quote
 
 SELECT dropIfExists('VIEW', 'quote', 'api');
@@ -252,6 +250,3 @@ CREATE OR REPLACE RULE "_DELETE" AS
   SELECT deletequote(quhead_id,OLD.quote_number)
   FROM quhead
   WHERE (quhead_number=OLD.quote_number);
-
---COMMIT;
-

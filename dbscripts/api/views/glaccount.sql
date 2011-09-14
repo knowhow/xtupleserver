@@ -1,5 +1,3 @@
-BEGIN;
-
 --GL Account View
 
 SELECT dropIfExists('VIEW', 'glaccount', 'api');
@@ -91,5 +89,3 @@ UPDATE accnt SET
   accnt_forwardupdate=NEW.forward_update_trial_balances,
   accnt_subaccnttype_code=NEW.sub_type
 WHERE accnt.accnt_id = getglaccntid(old.company::text,old.profit_center::text,old.account_number::text,old.sub_account::text);
-
-COMMIT;

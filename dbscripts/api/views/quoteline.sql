@@ -1,5 +1,3 @@
-BEGIN;
- 
 -- Quote Line
 
 SELECT dropIfExists('VIEW', 'quoteline', 'api');
@@ -143,6 +141,3 @@ CREATE OR REPLACE RULE "_DELETE" AS
   DELETE FROM quitem
   WHERE ((quitem_quhead_id=getQuoteId(OLD.quote_number))
   AND (quitem_linenumber=OLD.line_number));
-
-COMMIT;
-

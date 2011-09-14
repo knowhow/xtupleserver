@@ -1,5 +1,3 @@
-BEGIN;
-
 -- Location View
 
 SELECT dropIfExists('VIEW', 'location', 'api');
@@ -70,5 +68,3 @@ CREATE OR REPLACE RULE "_DELETE" AS
   DELETE FROM location
   WHERE ( (location_warehous_id=getWarehousId(OLD.site, 'ACTIVE')) AND
           (location_name=OLD.location) );
-
-COMMIT;

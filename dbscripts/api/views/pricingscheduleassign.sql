@@ -1,8 +1,6 @@
-BEGIN;
-
 -- Pricing Schedule Assignemnts
 
-DROP VIEW api.pricingscheduleassign;
+SELECT dropIfExists('VIEW', 'pricingscheduleassign', 'api');
 CREATE OR REPLACE VIEW api.pricingscheduleassign 
 AS 
   SELECT 
@@ -139,5 +137,3 @@ CREATE OR REPLACE RULE "_DELETE" AS
           getShiptoId(old.customer_number,old.customer_shipto)
       END)
     AND (ipsass_shipto_pattern=old.customer_shipto_pattern));
-
-COMMIT;

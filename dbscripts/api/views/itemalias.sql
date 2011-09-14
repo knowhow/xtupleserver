@@ -1,8 +1,6 @@
-BEGIN;
-
 -- Item Alias
 
-DROP VIEW api.itemalias;
+SELECT dropIfExists('VIEW', 'itemalias', 'api');
 CREATE VIEW api.itemalias
 AS 
    SELECT 
@@ -56,5 +54,3 @@ CREATE OR REPLACE RULE "_DELETE" AS
   DELETE FROM itemalias
   WHERE  ((itemalias_item_id=getItemId(OLD.item_number))
   AND (itemalias_number=OLD.alias_number));
-
-COMMIT;

@@ -1,5 +1,3 @@
-BEGIN;
-
   --Purchase Order View
 
   SELECT dropIfExists('VIEW', 'purchaseorder', 'api');
@@ -258,5 +256,3 @@ COMMENT ON VIEW api.purchaseorder IS 'Purchase Order';
   SELECT deletepo(pohead_id)
   FROM pohead
   WHERE (pohead_number=OLD.order_number);
-
-COMMIT;

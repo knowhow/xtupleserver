@@ -1,8 +1,6 @@
-BEGIN;
-
   --Address View
 
-  DROP VIEW api.address;
+SELECT dropIfExists('VIEW', 'address', 'api');
   CREATE OR REPLACE VIEW api.address AS
  
   SELECT 
@@ -63,5 +61,3 @@ CREATE OR REPLACE RULE "_DELETE" AS
     ON DELETE TO api.address DO INSTEAD
 
 SELECT deleteAddress(getAddrId(OLD.address_number));
-
-COMMIT;

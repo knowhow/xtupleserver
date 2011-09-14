@@ -1,5 +1,3 @@
-BEGIN;
-
   --Purchase Order Line Item View
 
   SELECT dropIfExists('VIEW', 'purchaseline', 'api');
@@ -130,6 +128,3 @@ FROM pohead, poitem, charass, char, itemsite, item
 
   DELETE FROM poitem
   WHERE (poitem_id=getPoitemId(OLD.order_number::text,OLD.line_number));
-
-COMMIT;
-

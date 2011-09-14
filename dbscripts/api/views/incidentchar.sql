@@ -1,15 +1,13 @@
-BEGIN;
-
 -- Incident	 Characteristic
 
-SELECT dropIfExists('VIEW', 'api.incidentchar', 'api');
+SELECT dropIfExists('VIEW', 'incidentchar', 'api');
 CREATE VIEW api.incidentchar
 AS 
    SELECT 
      incdt_number AS incident_number,
      char_name::varchar AS characteristic,
      charass_value AS value
-   FROM incdt, char, charass
+   FROM incdt(), char, charass
    WHERE (('INCDT'=charass_target_type)
    AND (incdt_id=charass_target_id)
    AND (charass_char_id=char_id));
@@ -52,5 +50,3 @@ CREATE OR REPLACE RULE "_DELETE" AS
   WHERE ((charass_target_type='INCDT')
   AND (charass_target_id=getIncidentId(OLD.incident_number))
   AND (charass_char_id=getCharId(OLD.characteristic,'INCDT')));
-
-COMMIT;

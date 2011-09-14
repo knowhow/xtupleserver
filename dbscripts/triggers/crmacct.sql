@@ -81,7 +81,7 @@ BEGIN
     END IF;
 
     IF (NEW.crmacct_prospect_id IS NOT NULL) THEN
-      _gotpriv := grantPriv(getEffectiveXtUser(), 'MaintainAllProspects');
+      _gotpriv := grantPriv(getEffectiveXtUser(), 'MaintaiProspectMasters');
       UPDATE prospect SET prospect_number = NEW.crmacct_number
       WHERE ((prospect_id=NEW.crmacct_prospect_id)
         AND  (prospect_number!=NEW.crmacct_number));
@@ -89,7 +89,7 @@ BEGIN
       WHERE ((prospect_id=NEW.crmacct_prospect_id)
         AND  (prospect_name!=NEW.crmacct_name));
       IF (_gotpriv) THEN
-        PERFORM revokePriv(getEffectiveXtUser(), 'MaintainAllProspects');
+        PERFORM revokePriv(getEffectiveXtUser(), 'MaintainProspectMasters');
       END IF;
     END IF;
 

@@ -1,5 +1,3 @@
-BEGIN;
-
 -- To-Do List View
 
 SELECT dropIfExists('VIEW', 'todo', 'api');
@@ -28,7 +26,7 @@ CREATE OR REPLACE VIEW api.todo AS
     todoitem_active AS active,
     todoitem_description AS description,
     todoitem_notes AS notes
-    FROM todoitem
+    FROM todoitem()
        LEFT OUTER JOIN incdt ON (incdt_id=todoitem_incdt_id)
        LEFT OUTER JOIN ophead ON (ophead_id=todoitem_ophead_id)
        LEFT OUTER JOIN crmacct ON (crmacct_id=todoitem_crmacct_id)
@@ -142,5 +140,3 @@ CREATE OR REPLACE RULE "_DELETE" AS
     ON DELETE TO api.todo DO INSTEAD
 
   SELECT deleteTodoItem(OLD.task_number);
-
-COMMIT;

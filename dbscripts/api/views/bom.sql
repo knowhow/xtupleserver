@@ -1,8 +1,6 @@
-BEGIN;
-
   --Bill of Material View
 
-  DROP VIEW api.bom;
+SELECT dropIfExists('VIEW', 'bom', 'api');
   CREATE OR REPLACE VIEW api.bom AS
 
   SELECT
@@ -49,5 +47,3 @@ COMMENT ON VIEW api.bom IS 'Bill of Material Header';
     ON DELETE TO api.bom DO INSTEAD
 
     SELECT deletebom(getItemId(OLD.item_number));
-
-COMMIT;

@@ -1,5 +1,3 @@
-BEGIN;
-
 -- Site Zone (aka Warehouse Zone) View
 
 SELECT dropIfExists('VIEW', 'sitezone', 'api');
@@ -44,5 +42,3 @@ CREATE OR REPLACE RULE "_DELETE" AS
   DELETE FROM whsezone
   WHERE ( (whsezone_warehous_id=getWarehousId(OLD.site, 'ACTIVE')) AND
           (whsezone_name=OLD.name) );
-
-COMMIT;

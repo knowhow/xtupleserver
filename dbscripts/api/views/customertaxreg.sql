@@ -1,5 +1,3 @@
-BEGIN;
-
 --Customer Tax Registration View
 
 SELECT dropIfExists('VIEW', 'customertaxreg', 'api');
@@ -62,5 +60,3 @@ VALUES (
        ELSE COALESCE(NEW.end_date::date,endoftime())
   END,
   NEW.notes );
-
-COMMIT;

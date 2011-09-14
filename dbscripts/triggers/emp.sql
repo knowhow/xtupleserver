@@ -23,6 +23,8 @@ BEGIN
       NEW.emp_name = COALESCE(formatCntctName(emp_cntct_id), emp_number);
     END IF;
 
+    NEW.emp_code := UPPER(NEW.emp_code);
+
     -- deprecated column emp_username
     IF (TG_OP = 'UPDATE' AND
         LOWER(NEW.emp_username) != LOWER(NEW.emp_code) AND
@@ -36,6 +38,10 @@ BEGIN
   ELSIF (TG_OP = 'DELETE') THEN
     UPDATE crmacct SET crmacct_emp_id = NULL
      WHERE crmacct_emp_id = OLD.emp_id;
+
+    UPDATE salesrep SET salesrep_emp_id = NULL
+     WHERE salesrep_emp_id = OLD.emp_id;
+
     RETURN OLD;
   END IF;
   

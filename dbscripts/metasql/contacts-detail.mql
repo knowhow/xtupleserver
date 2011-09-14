@@ -18,7 +18,11 @@ SELECT DISTINCT ON (length(cntct_last_name)=0, length(cntct_first_name)=0, cntct
   , charass_alias<? literal("char_id_date_list") ?>.charass_value::date AS char<? literal("char_id_date_list") ?>
 <? endforeach ?>
 <? endif ?>
+<? if exists("hasContext") ?>
+FROM cntct
+<? else ?>
 FROM cntct()
+<? endif ?>
   LEFT OUTER JOIN crmacct ON (cntct_crmacct_id=crmacct_id) 
   LEFT OUTER JOIN addr ON (cntct_addr_id=addr_id) 
   LEFT OUTER JOIN cntcteml ON (cntcteml_cntct_id=cntct_id)
