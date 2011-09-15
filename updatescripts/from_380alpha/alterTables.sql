@@ -1,0 +1,17 @@
+ALTER TABLE cohead ALTER COLUMN cohead_creator SET DEFAULT getEffectiveXtUser();
+ALTER TABLE coitem ALTER COLUMN coitem_creator SET DEFAULT getEffectiveXtUser();
+ALTER TABLE ccard ALTER COLUMN ccard_added_by_username SET DEFAULT getEffectiveXtUser();
+ALTER TABLE ccard ALTER COLUMN ccard_last_updated_by_username SET DEFAULT getEffectiveXtUser();
+ALTER TABLE gltrans ALTER COLUMN gltrans_username SET DEFAULT getEffectiveXtUser();
+ALTER TABLE wo ALTER COLUMN wo_username SET DEFAULT getEffectiveXtUser();
+ALTER TABLE todoitem ALTER COLUMN todoitem_creator_username SET DEFAULT getEffectiveXtUser();
+ALTER TABLE bankadj ALTER COLUMN bankadj_username SET DEFAULT getEffectiveXtUser();
+ALTER TABLE bankrec ALTER COLUMN bankrec_username SET DEFAULT getEffectiveXtUser();
+ALTER TABLE ccardaud ALTER COLUMN ccardaud_ccard_last_updated_by_username SET DEFAULT getEffectiveXtUser();
+ALTER TABLE ccpay ALTER COLUMN ccpay_by_username SET DEFAULT getEffectiveXtUser();
+ALTER TABLE incdthist ALTER COLUMN incdthist_username SET DEFAULT getEffectiveXtUser();
+ALTER TABLE invhist ALTER COLUMN invhist_user SET DEFAULT getEffectiveXtUser();
+ALTER TABLE recv ALTER COLUMN recv_trans_usr_name SET DEFAULT getEffectiveXtUser();
+ALTER TABLE qryhead ALTER COLUMN qryhead_username SET DEFAULT getEffectiveXtUser();
+ALTER TABLE qryitem ALTER COLUMN qryitem_username SET DEFAULT getEffectiveXtUser();
+ALTER TABLE sltrans ALTER COLUMN sltrans_username SET DEFAULT getEffectiveXtUser();

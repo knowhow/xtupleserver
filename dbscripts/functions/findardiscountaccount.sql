@@ -5,11 +5,6 @@ DECLARE
 
 BEGIN
 
---  Check GL Interface metric
-  IF (fetchMetricBool('InterfaceToGL') = false) THEN
-    RETURN 0;
-  END IF;
-
 --  Check for a Customer Type specific Account
   SELECT araccnt_discount_accnt_id INTO _accntid
   FROM araccnt, custinfo

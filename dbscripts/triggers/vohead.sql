@@ -1,3 +1,6 @@
+SELECT dropIfExists('TRIGGER', 'voheadBeforeTrigger');
+SELECT dropIfExists('TRIGGER', 'voheadAfterTrigger');
+
 CREATE OR REPLACE FUNCTION _voheadBeforeTrigger() RETURNS "trigger" AS $$
 DECLARE
   _recurid     INTEGER;
@@ -5,8 +8,22 @@ DECLARE
 
 BEGIN
   IF (TG_OP = 'DELETE') THEN
-    DELETE FROM voheadtax
-    WHERE (taxhist_parent_id=OLD.vohead_id);
+    /* TODO: is setting recv_invoiced and poreject_invoiced to FALSE correct?
+             this behavior is inherited from the now-defunct deleteVoucher.
+     */
+    UPDATE recv SET recv_vohead_id = NULL,
+                    recv_voitem_id = NULL,
+                    recv_invoiced  = FALSE
+     WHERE recv_vohead_id = OLD.vohead_id;
+
+    UPDATE poreject SET poreject_vohead_id = NULL,
+                        poreject_voitem_id = NULL,
+                        poreject_invoiced  = FALSE
+     WHERE poreject_vohead_id = OLD.vohead_id;
+
+    DELETE FROM vodist    WHERE vodist_vohead_id  = OLD.vohead_id;
+    DELETE FROM voheadtax WHERE taxhist_parent_id = OLD.vohead_id;
+    DELETE FROM voitem    WHERE voitem_vohead_id  = OLD.vohead_id;
 
     SELECT recur_id INTO _recurid
       FROM recur
@@ -38,30 +55,25 @@ BEGIN
 END;
 $$ LANGUAGE 'plpgsql';
 
-SELECT dropIfExists('TRIGGER', 'voheadBeforeTrigger');
 CREATE TRIGGER voheadBeforeTrigger
   BEFORE INSERT OR UPDATE OR DELETE
   ON vohead
   FOR EACH ROW
   EXECUTE PROCEDURE _voheadBeforeTrigger();
 
-CREATE OR REPLACE FUNCTION _voheadTrigger() RETURNS "trigger" AS $$
+CREATE OR REPLACE FUNCTION _voheadAfterTrigger() RETURNS "trigger" AS $$
 BEGIN
   IF (TG_OP = 'DELETE') THEN
-    -- Something can go here
+    PERFORM releaseVoNumber(CAST(OLD.vohead_number AS INTEGER));
     RETURN OLD;
   END IF;
 
--- Insert new row
   IF (TG_OP = 'INSERT') THEN
     -- Something can go here
     RETURN NEW;
   END IF;
 
--- Update row
   IF (TG_OP = 'UPDATE') THEN
-
-  -- Calculate Tax
     IF ( (COALESCE(NEW.vohead_taxzone_id,-1) <> COALESCE(OLD.vohead_taxzone_id,-1)) OR
          (NEW.vohead_docdate <> OLD.vohead_docdate) OR
          (NEW.vohead_curr_id <> OLD.vohead_curr_id) ) THEN
@@ -77,7 +89,7 @@ BEGIN
       WHERE (voitem_vohead_id = NEW.vohead_id);
     END IF;
 
-  -- Touch any Misc Tax Distributions so voheadtax is recalculated
+    -- Touch any Misc Tax Distributions so voheadtax is recalculated
     IF (NEW.vohead_docdate <> OLD.vohead_docdate) THEN
       UPDATE vodist SET vodist_vohead_id=NEW.vohead_id
       WHERE ( (vodist_vohead_id=OLD.vohead_id)
@@ -89,9 +101,8 @@ BEGIN
 END;
 $$ LANGUAGE 'plpgsql';
 
-SELECT dropIfExists('TRIGGER', 'voheadtrigger');
-CREATE TRIGGER voheadtrigger
+CREATE TRIGGER voheadAfterTrigger
   AFTER INSERT OR UPDATE OR DELETE
   ON vohead
   FOR EACH ROW
-  EXECUTE PROCEDURE _voheadTrigger();
+  EXECUTE PROCEDURE _voheadAfterTrigger();

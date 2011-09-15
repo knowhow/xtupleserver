@@ -5,11 +5,6 @@ DECLARE
 
 BEGIN
 
---  Check GL Interface metric
-  IF (fetchMetricBool('InterfaceToGL') = false) THEN
-    RETURN 0;
-  END IF;
-
 --  Check for a Vendor Type specific Account
   SELECT apaccnt_discount_accnt_id INTO _accntid
   FROM apaccnt, vend

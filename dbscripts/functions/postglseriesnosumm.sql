@@ -24,11 +24,6 @@ DECLARE
 
 BEGIN
 
---  Check GL Interface metric
-  IF (fetchMetricBool('InterfaceToGL') = false) THEN
-    RETURN 0;
-  END IF;
-
 /*  Make sure we don't create an imbalance across companies.
     The 'IgnoreCompanyBalance' metric is a back door mechanism to
     allow legacy users to create transactions accross companies if

@@ -84,6 +84,10 @@ WHERE (true
  AND (cohist_cust_id=<? value("cust_id") ?>)
 <? endif ?>
 
+<? if exists("salesrep_id") ?>
+ AND (cohist_salesrep_id=<? value("salesrep_id") ?>)
+<? endif ?>
+
 <? if exists("prodcat_id") ?>
  AND (item_prodcat_id=<? value("prodcat_id") ?>)
 <? endif ?>

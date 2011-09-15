@@ -1,0 +1,2 @@
+delete from metasql where metasql_group='incidentsbyCRMAccount' and metasql_name = 'detail' and metasql_grade = 0;
+delete from metasql where metasql_group='todoByUserAndIncident' and metasql_name = 'detail' and metasql_grade = 0;

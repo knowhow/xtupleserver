@@ -172,15 +172,6 @@ BEGIN
         AND  (usrpref_value!=NEW.crmacct_name));
     END IF;
 
-    IF (NEW.crmacct_owner_username IS NOT NULL) THEN
-      IF (NOT EXISTS(SELECT usename
-                       FROM pg_user
-                      WHERE usename=NEW.crmacct_owner_username)) THEN
-        RAISE EXCEPTION 'User % does not exist so this CRM Account Owner is invalid.',
-                        NEW.crmacct_owner_username;
-      END IF;
-    END IF;
-
   ELSIF (TG_OP = 'DELETE') THEN
     IF (OLD.crmacct_cust_id IS NOT NULL) THEN
       RAISE EXCEPTION '[xtuple: deleteCrmAccount, -1]';

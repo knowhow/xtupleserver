@@ -121,7 +121,7 @@ DECLARE
 BEGIN
 
 --  Check GL Interface metric
-  IF (fetchMetricBool('InterfaceToGL') = false) THEN
+  IF (fetchMetricBool('InterfaceToGL') = false AND pSource IN ('I/M', 'P/D', 'S/R', 'W/O')) THEN
     RETURN 0;
   END IF;
 

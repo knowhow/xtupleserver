@@ -2,14 +2,9 @@ CREATE OR REPLACE FUNCTION postVoucher(INTEGER, BOOLEAN) RETURNS INTEGER AS $$
 DECLARE
   pVoheadid ALIAS FOR $1;
   pPostCosts ALIAS FOR $2;
-  _result INTEGER;
 
 BEGIN
-
-  SELECT postVoucher(pVoheadid, fetchJournalNumber('AP-VO'), pPostCosts) INTO _result;
-
-  RETURN _result;
-
+  RETURN postVoucher(pVoheadid, fetchJournalNumber('AP-VO'), pPostCosts);
 END;
 $$ LANGUAGE 'plpgsql';
 
@@ -40,13 +35,10 @@ DECLARE
   _firstExchDateFreight	DATE;
   _tmpTotal		NUMERIC;
   _glDate		DATE;
-  _debug BOOLEAN := false;
 
 BEGIN
 
-  if (_debug) then
-    raise notice 'postVoucher, pVoheadid=%', pVoheadid;
-  end if;
+  RAISE DEBUG 'postVoucher(%, %, %)', pVoheadid, pJournalNumber, pPostCosts;
 
   _pPostCosts := TRUE;
   _totalAmount_base := 0;
@@ -68,11 +60,12 @@ BEGIN
 
 --  If the vohead_distdate is NULL, assume that this is a NULL vohead and quietly delete it
   IF (_p.vohead_distdate IS NULL) THEN
-    PERFORM deletevoucher (pVoheadid);
+    DELETE FROM vohead WHERE vohead_id = pVoheadid;
     RETURN 0;
   END IF;
   IF (_p.vohead_amount <= 0) THEN
-    RAISE EXCEPTION 'Cannot Post Voucher #% for a negative or zero amount (%).',
+    RAISE EXCEPTION 'Cannot Post Voucher #% for a negative or zero amount (%) [xtuple: postVoucher, -1, %, %]',
+			_p.vohead_number, _p.vohead_amount,
 			_p.vohead_number, _p.vohead_amount;
   END IF;
 
@@ -104,17 +97,20 @@ BEGIN
   ) AS data;
 
   IF (_tmpTotal IS NULL OR _tmpTotal <= 0) THEN
-    RAISE EXCEPTION 'Cannot Post Voucher #% with negative or zero distributions (%).',
+    RAISE EXCEPTION 'Cannot Post Voucher #% with negative or zero distributions (%) [xtuple: postVoucher, -2, %, %]',
+			_p.vohead_number, _tmpTotal,
 			_p.vohead_number, _tmpTotal;
   END IF;
 
   IF (_tmpTotal > _p.vohead_amount) THEN
-    RAISE EXCEPTION 'Cannot Post Voucher #% with distributions greater than the voucher amount (% > %).',
+    RAISE EXCEPTION 'Cannot Post Voucher #% with distributions greater than the voucher amount (% > %) [xtuple: postVoucher, -3, %, %, %]',
+			_p.vohead_number, _tmpTotal, _p.vohead_amount,
 			_p.vohead_number, _tmpTotal, _p.vohead_amount;
   END IF;
 
   IF (_tmpTotal < _p.vohead_amount) THEN
-    RAISE EXCEPTION 'Cannot Post Voucher #% with distributions less than the voucher amount (% < %).',
+    RAISE EXCEPTION 'Cannot Post Voucher #% with distributions less than the voucher amount (% < %) [xtuple: postVoucher, -4, %, %, %]',
+			_p.vohead_number, _tmpTotal, _p.vohead_amount,
 			_p.vohead_number, _tmpTotal, _p.vohead_amount;
   END IF;
 
@@ -127,7 +123,8 @@ BEGIN
      AND   (vodist_vohead_id=pVoheadid) )
    LIMIT 1;
   IF (FOUND) THEN
-    RAISE EXCEPTION 'Cannot Post Voucher #% as one or more of the line items have already been fully vouchered. Check P/O Line #%.',
+    RAISE EXCEPTION 'Cannot Post Voucher #% as one or more of the line items have already been fully vouchered. Check P/O Line #% [postVoucher, -6, %, %]',
+         _p.vohead_number, _test,
          _p.vohead_number, _test;
   END IF;
 
@@ -144,9 +141,7 @@ BEGIN
                                 _r.taxbasevalue,
                                 _glDate, _p.glnotes );
 
-    if (_debug) then
-      raise notice 'postVoucher, _r.tax=%', _r.tax;
-    end if;
+    RAISE DEBUG 'postVoucher: _r.tax=%', _r.tax;
 
     _totalAmount_base := (_totalAmount_base - _r.taxbasevalue);
     _totalAmount := (_totalAmount - _r.tax);
@@ -224,7 +219,8 @@ BEGIN
        AND (expcat_liability_accnt_id=lb.accnt_id)
        AND (expcat_id=_g.poitem_expcat_id) );
       IF (NOT FOUND) THEN
-        RAISE EXCEPTION 'Cannot Post Voucher #% due to unassigned G/L Accounts.', _p.vohead_number;
+        RAISE EXCEPTION 'Cannot Post Voucher #% due to unassigned G/L Accounts [xtuple: postVoucher, -7, %]',
+                        _p.vohead_number, _p.vohead_number;
       END IF;
     ELSE
       SELECT getPrjAccntId(_g.poitem_prj_id, pp.accnt_id) AS pp_accnt_id,
@@ -234,7 +230,8 @@ BEGIN
        AND (costcat_liability_accnt_id=lb.accnt_id)
        AND (costcat_id=_g.costcatid) );
       IF (NOT FOUND) THEN
-        RAISE EXCEPTION 'Cannot Post Voucher #% due to unassigned G/L Accounts.', _p.vohead_number;
+        RAISE EXCEPTION 'Cannot Post Voucher #% due to unassigned G/L Accounts [xtuple: postVoucher, -8, %]',
+                        _p.vohead_number, _p.vohead_number;
       END IF;
     END IF;
 
@@ -270,9 +267,7 @@ BEGIN
       END IF;
 
 --  Add the Distribution Amount to the Item Amount
-      if (_debug) then
-        raise notice 'postVoucher, _d.vodist_amount=%', _d.vodist_amount;
-      end if;
+      RAISE DEBUG 'postVoucher: _d.vodist_amount=%', _d.vodist_amount;
 
       _itemAmount_base := _itemAmount_base + ROUND(_d.vodist_amount_base, 2);
       _itemAmount := _itemAmount + _d.vodist_amount;
@@ -320,9 +315,7 @@ BEGIN
     END IF;
 
 --  Add the distribution amount to the total amount to distribute
-    if (_debug) then
-      raise notice 'postVoucher, _itemAmount=%', _itemAmount;
-    end if;
+    RAISE DEBUG 'postVoucher: _itemAmount=%', _itemAmount;
 
     _totalAmount_base := (_totalAmount_base + _itemAmount_base + _g.voitem_freight_base);
     _totalAmount := (_totalAmount + _itemAmount + _g.voitem_freight);
@@ -383,9 +376,7 @@ BEGIN
     END IF;
 
 --  Add the Distribution Amount to the Total Amount
-    if (_debug) then
-      raise notice 'postVoucher, _d.vodist_amount=%', _d.vodist_amount;
-    end if;
+    RAISE DEBUG 'postVoucher: _d.vodist_amount=%', _d.vodist_amount;
 
     _totalAmount_base := _totalAmount_base + ROUND(_d.vodist_amount_base, 2);
     _totalAmount := _totalAmount + _d.vodist_amount;
@@ -402,16 +393,15 @@ BEGIN
   WHERE ( (findAPAccount(vohead_vend_id)=accnt_id)
     AND (vohead_id=pVoheadid) );
   IF (NOT FOUND) THEN
-    RAISE EXCEPTION 'Cannot Post Voucher #% due to an unassigned A/P Account.', _p.vohead_number;
+    RAISE EXCEPTION 'Cannot Post Voucher #% due to an unassigned A/P Account [xtuple: postVoucher, -9, %]',
+                    _p.vohead_number, _p.vohead_number;
   END IF;
 
   PERFORM postGLSeries(_sequence, pJournalNumber);
 
 --  Create the A/P Open Item
-  if (_debug) then
-    raise notice 'postVoucher, _totalAmount=%', _totalAmount;
-    raise notice 'postVoucher, _totalDiscountableAmount=%', _totalDiscountableAmount;
-  end if;
+  RAISE DEBUG 'postVoucher: _totalAmount=%, _totalDiscountableAmount=%',
+                _totalAmount, _totalDiscountableAmount;
 
   INSERT INTO apopen
   ( apopen_journalnumber, apopen_docdate, apopen_duedate, apopen_distdate, apopen_open,

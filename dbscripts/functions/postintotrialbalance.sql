@@ -7,11 +7,6 @@ DECLARE
 
 BEGIN
 
---  Check GL Interface metric
-  IF (fetchMetricBool('InterfaceToGL') = false) THEN
-    RETURN 1;
-  END IF;
-
 --  March through all of the G/L Transactions for the passed sequence that are not posted
   FOR _r IN SELECT gltrans_id, gltrans_date, gltrans_accnt_id, gltrans_amount,
                    accnt_closedpost, accnt_forwardupdate, period_id, period_closed, period_freeze
