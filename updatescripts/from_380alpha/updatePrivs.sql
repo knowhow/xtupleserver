@@ -1,5 +1,3 @@
-BEGIN;
-
 UPDATE priv set priv_name='ViewPersonalToDoItems' where priv_name='ViewPersonalTodoList';
 UPDATE priv set priv_name='ViewAllToDoItems' where priv_name='ViewOtherTodoLists';
 UPDATE priv set priv_name='MaintainPersonalToDoItems' where priv_name='MaintainPersonalTodoList';
@@ -53,5 +51,3 @@ UPDATE priv set priv_seq = 0 WHERE priv_name ~ 'MaintainAll';
 UPDATE priv set priv_seq = 1 WHERE priv_name ~ 'ViewAll';
 UPDATE priv set priv_seq = 2 WHERE priv_name ~ 'MaintainPersonal';
 UPDATE priv set priv_seq = 4 WHERE priv_name ~ 'ViewPersonal';
-
-COMMIT;
