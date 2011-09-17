@@ -69,7 +69,7 @@ AS
      itemsite_leadtime AS lead_time,
      itemsite_safetystock AS safety_stock,
      COALESCE( (SELECT warehous_code
-                FROM itemsite supplysite JOIN warehous ON (warehous_id=supplysite.itemsite_warehous_id)
+                FROM itemsite supplysite JOIN whsinfo ON (warehous_id=supplysite.itemsite_warehous_id)
                 WHERE supplysite.itemsite_id=itemsite.itemsite_supply_itemsite_id), 'None') AS supplied_from_site,
      itemsite_notes AS notes,
      itemsite_perishable AS perishable,

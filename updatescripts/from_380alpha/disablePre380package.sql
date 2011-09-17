@@ -4,4 +4,6 @@
    table. therefore we need to disable or delete that package for 3.8.0's
    crmaccounts and crmaccountMergePickAccounts windows to work correctly.
 */
-SELECT disablePackage('pre380');
+SELECT disablePackage(pkghead_id)
+  FROM pkghead
+ WHERE (pkghead_name='pre380');
