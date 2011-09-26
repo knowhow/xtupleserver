@@ -22,9 +22,7 @@ SELECT apopen_id, COALESCE(apselect_id, -1) AS apselectid,
        (COALESCE(apselect_discount,0.0) / apopen_curr_rate)AS base_discount,
        CASE WHEN (apopen_duedate < CURRENT_DATE) THEN 'error'
             WHEN(apopen_duedate > CURRENT_DATE) THEN 'emphasis'
-            WHEN(CURRENT_DATE <= (apopen_docdate + COALESCE((SELECT terms_discdays
-                                                             FROM terms
-                                                             WHERE (terms_id=apopen_terms_id)), 0))) THEN 'altemphasis'
+            WHEN(CURRENT_DATE <= determineDiscountDate(apopen_terms_id, apopen_docdate)) THEN 'altemphasis'
        END AS apopen_duedate_qtforegroundrole, 
        apopen_invcnumber,
        currConcat(apopen_curr_id) AS curr_concat,

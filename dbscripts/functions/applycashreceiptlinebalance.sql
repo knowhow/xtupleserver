@@ -68,11 +68,11 @@ BEGIN
 --  If Invoice or Debit Memo, determine Max Discount as per Terms
   IF (_doctype IN ('I','D')) THEN
     SELECT  round(noNeg(_balance * 
-            CASE WHEN (_docDate <= (aropen_docdate + terms_discdays)) THEN terms_discprcnt 
+            CASE WHEN (_docDate <= determineDiscountDate(terms_id, aropen_docdate)) THEN terms_discprcnt 
             ELSE 0.00 END - applied),2),
-            CASE WHEN (_docDate <= (aropen_docdate + terms_discdays)) THEN terms_discprcnt 
+            CASE WHEN (_docDate <= determineDiscountDate(terms_id, aropen_docdate)) THEN terms_discprcnt 
             ELSE 0.00 END INTO _discount, _discprct
-    FROM aropen LEFT OUTER JOIN terms ON (aropen_terms_id=terms_id), 
+    FROM aropen LEFT OUTER JOIN terms ON (terms_id=aropen_terms_id), 
          (SELECT COALESCE(SUM(arapply_applied), 0.00) AS applied  
 	  FROM arapply, aropen 
           WHERE ((arapply_target_aropen_id=pAropenId) 

@@ -7,7 +7,7 @@ DECLARE
 BEGIN
 
   --  Checks
-  IF (NEW.prj_owner_username=getEffectiveXtUser()) THEN
+  IF (NEW.prjtask_owner_username=getEffectiveXtUser()) THEN
     IF (NOT checkPrivilege('MaintainAllProjects') AND NOT checkPrivilege('MaintainPersonalProjects')) THEN
       RAISE EXCEPTION 'You do not have privileges to maintain Projects.';
     END IF;

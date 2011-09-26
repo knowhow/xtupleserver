@@ -13,7 +13,7 @@ BEGIN
 
   FOR _r IN SELECT apopen_id
               FROM apopen, terms
-             WHERE((CURRENT_DATE <= (apopen_docdate + terms_discdays))
+             WHERE((CURRENT_DATE <= determineDiscountDate(apopen_terms_id, apopen_docdate))
                AND (terms_discprcnt > 0.0)
                AND (apopen_terms_id=terms_id)
                AND (apopen_open)
