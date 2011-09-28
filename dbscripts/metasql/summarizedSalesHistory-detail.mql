@@ -84,6 +84,10 @@ WHERE (true
  AND (cohist_cust_id=<? value("cust_id") ?>)
 <? endif ?>
 
+<? if exists("shipto_id") ?>
+ AND (cohist_shipto_id=<? value("shipto_id") ?>)
+<? endif ?>
+
 <? if exists("salesrep_id") ?>
  AND (cohist_salesrep_id=<? value("salesrep_id") ?>)
 <? endif ?>
@@ -93,7 +97,7 @@ WHERE (true
 <? endif ?>
 
 <? if exists("prodcat_pattern") ?>
- AND (item_prodcat_id IN (SELECT prodcat_id FROM prodcat WHERE (prodcat_code ~ <? value("prodcat_pattern") ?>))) 
+ AND (prodcat_code ~ <? value("prodcat_pattern") ?>) 
 <? endif ?>
 
 <? if exists("custtype_id") ?>
@@ -101,8 +105,21 @@ WHERE (true
 <? endif ?>
 
 <? if exists("custtype_pattern") ?>
-   AND (cust_custtype_id IN (SELECT custtype_id FROM custtype WHERE (custtype_code ~ <? value("custtype_pattern") ?>)))
+   AND (custtype_code ~ <? value("custtype_pattern") ?>)
 <? endif ?> 
+
+<? if exists("custgrp_id") ?>
+  AND (cust_id IN (SELECT DISTINCT custgrpitem_cust_id
+                   FROM custgrpitem
+                   WHERE (custgrpitem_custgrp_id=<? value("custgrp_id") ?>)))
+<? endif ?>
+
+<? if exists("custgrp_pattern") ?>
+  AND (cust_id IN (SELECT DISTINCT custgrpitem_cust_id
+                   FROM custgrp, custgrpitem
+                   WHERE ( (custgrpitem_custgrp_id=custgrp_id)
+                     AND   (custgrp_name ~ <? value("custgrp_pattern") ?>) )) )
+<? endif ?>
 
 <? if exists("shipzone_id") ?>
  AND (shipzone_id=<? value("shipzone_id") ?>)
@@ -113,7 +130,7 @@ WHERE (true
 <? endif ?>
 
 <? if exists("currConcat_pattern") ?>
- AND cust_curr_id IN (SELECT curr_id FROM curr_symbol WHERE currConcat(curr_id) ~ <? value("currConcat_pattern") ?>) 
+ AND (currAbbr ~ <? value("currConcat_pattern") ?>) 
 <? endif ?>
 ) 
 GROUP BY dummy

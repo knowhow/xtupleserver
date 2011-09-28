@@ -93,7 +93,7 @@ BEGIN
   ELSIF (pParentType = 'F') THEN
     SELECT planord_itemsite_id AS itemsiteid,
            planord_qty AS qty,
-           planord_duedate AS duedate, NULL AS prjid,
+           planord_duedate AS duedate, NULL::INTEGER AS prjid,
            planord_comments AS notes INTO _parent
     FROM planord
     WHERE (planord_id=pParentId);
