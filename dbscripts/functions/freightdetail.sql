@@ -136,6 +136,9 @@ BEGIN
   FOR _weights IN
     EXECUTE _qry LOOP
 
+  _freightid := NULL;
+  _totalprice := 0.0;
+
   IF (_debug) THEN
     RAISE NOTICE '_weights.weight - %', _weights.weight;
     RAISE NOTICE '_weights.itemsite_warehous_id = %', _weights.itemsite_warehous_id;
